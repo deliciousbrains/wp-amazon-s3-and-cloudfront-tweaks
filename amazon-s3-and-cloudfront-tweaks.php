@@ -27,7 +27,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_action( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
 		//add_action( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 3 );
 		//add_action( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
-		add_action( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
+		//add_action( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
 		//add_action( 'as3cf_hidpi_suffix', array( $this, 'hidpi_suffix' ), 10, 1 );
 		//add_action( 'as3cf_get_object_version_string', array( $this, 'get_object_version_string' ), 10, 1 );
 		//add_action( 'as3cf_wp_get_attachment_url', array( $this, 'wp_get_attachment_url' ), 10, 2 );
