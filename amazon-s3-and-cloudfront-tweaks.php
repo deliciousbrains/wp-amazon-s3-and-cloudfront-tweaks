@@ -217,3 +217,5 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 }
+
+new Amazon_S3_and_CloudFront_Tweaks();
