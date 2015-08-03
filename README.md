@@ -1,7 +1,7 @@
-Amazon S3 and CloudFront Tweaks
+WP Offload S3 Tweaks
 ========================
 
-This is a WordPress plugin, meant as a starting point for developers to tweak Amazon S3 and CloudFront using WordPress filters.
+This is a WordPress plugin, meant as a starting point for developers to tweak [WP Offload S3](https://wordpress.org/plugins/amazon-s3-and-cloudfront/) using WordPress filters.
 
 Installation
 ------------

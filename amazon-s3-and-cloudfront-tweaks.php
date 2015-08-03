@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: Amazon S3 and CloudFront Tweaks
+Plugin Name: WP Offload S3 Tweaks
 Plugin URI: http://github.com/deliciousbrains/wp-amazon-s3-and-cloudfront-tweaks
-Description: Examples of using Amazon S3 and CloudFront's filters
+Description: Examples of using WP Offload S3's filters
 Author: Delicious Brains
-Version: 0.1
+Version: 0.1.1
 Author URI: http://deliciousbrains.com
 */
 // Copyright (c) 2015 Delicious Brains. All rights reserved.
@@ -26,7 +26,6 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_action( 'as3cf_setting_object-prefix', array( $this, 'get_setting' ), 10, 2 );
 		//add_action( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
 		//add_action( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 3 );
-		//add_action( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
 		//add_action( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
 		//add_action( 'as3cf_hidpi_suffix', array( $this, 'hidpi_suffix' ), 10, 1 );
 		//add_action( 'as3cf_get_object_version_string', array( $this, 'get_object_version_string' ), 10, 1 );
