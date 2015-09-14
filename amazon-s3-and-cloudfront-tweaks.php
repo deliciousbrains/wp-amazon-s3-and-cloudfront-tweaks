@@ -24,16 +24,16 @@ class Amazon_S3_and_CloudFront_Tweaks {
 
 		// each setting has a filter, e.g, object-prefix would be the following
 		//add_action( 'as3cf_setting_object-prefix', array( $this, 'get_setting' ), 10, 2 );
-		//add_action( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
-		//add_action( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 3 );
-		//add_action( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
-		//add_action( 'as3cf_hidpi_suffix', array( $this, 'hidpi_suffix' ), 10, 1 );
-		//add_action( 'as3cf_get_object_version_string', array( $this, 'get_object_version_string' ), 10, 1 );
-		//add_action( 'as3cf_wp_get_attachment_url', array( $this, 'wp_get_attachment_url' ), 10, 2 );
-		//add_action( 'as3cf_use_ssl', array( $this, 'use_ssl' ), 10, 1 );
-		//add_action( 'as3cf_get_attachment_url', array( $this, 'get_attachment_url' ), 10, 4 );
-		//add_action( 'as3cf_get_attached_file_copy_back_to_local', array( $this, 'get_attached_file_copy_back_to_local' ), 10, 3 );
-		//add_action( 'as3cf_legacy_ms_subsite_prefix', array( $this, 'legacy_ms_subsite_prefix' ), 10, 2 );
+		//add_filter( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
+		//add_filter( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 3 );
+		//add_filter( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
+		//add_filter( 'as3cf_hidpi_suffix', array( $this, 'hidpi_suffix' ), 10, 1 );
+		//add_filter( 'as3cf_get_object_version_string', array( $this, 'get_object_version_string' ), 10, 1 );
+		//add_filter( 'as3cf_wp_get_attachment_url', array( $this, 'wp_get_attachment_url' ), 10, 2 );
+		//add_filter( 'as3cf_use_ssl', array( $this, 'use_ssl' ), 10, 1 );
+		//add_filter( 'as3cf_get_attachment_url', array( $this, 'get_attachment_url' ), 10, 4 );
+		//add_filter( 'as3cf_get_attached_file_copy_back_to_local', array( $this, 'get_attached_file_copy_back_to_local' ), 10, 3 );
+		//add_filter( 'as3cf_legacy_ms_subsite_prefix', array( $this, 'legacy_ms_subsite_prefix' ), 10, 2 );
 	}
 
 	/**
