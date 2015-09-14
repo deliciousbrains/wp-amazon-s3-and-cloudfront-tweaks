@@ -124,7 +124,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * a file to S3.
 	 *
 	 * @param array $args
-	 * @param int $post_id
+	 * @param int   $post_id
 	 *
 	 * @return array
 	 */
