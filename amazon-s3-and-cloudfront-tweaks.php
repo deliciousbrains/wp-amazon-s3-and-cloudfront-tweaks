@@ -27,6 +27,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
 		//add_filter( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 3 );
 		//add_filter( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
+		//add_filter( 'as3cf_object_meta', array( $this, 'object_meta' ), 10, 2 );
 		//add_filter( 'as3cf_hidpi_suffix', array( $this, 'hidpi_suffix' ), 10, 1 );
 		//add_filter( 'as3cf_get_object_version_string', array( $this, 'get_object_version_string' ), 10, 1 );
 		//add_filter( 'as3cf_wp_get_attachment_url', array( $this, 'wp_get_attachment_url' ), 10, 2 );
@@ -116,6 +117,19 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		$suffix = '-2x';
 
 		return $suffix;
+	}
+
+	/**
+	 * This filter allows your to change the arguments passed to S3 when uploading
+	 * a file to S3.
+	 *
+	 * @param array $args
+	 * @param int $post_id
+	 *
+	 * @return array
+	 */
+	function object_meta( $args, $post_id ) {
+		return $args;
 	}
 
 	/**
