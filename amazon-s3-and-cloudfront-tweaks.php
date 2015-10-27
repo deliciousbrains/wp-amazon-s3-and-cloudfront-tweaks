@@ -35,6 +35,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_get_attachment_url', array( $this, 'get_attachment_url' ), 10, 4 );
 		//add_filter( 'as3cf_get_attached_file_copy_back_to_local', array( $this, 'get_attached_file_copy_back_to_local' ), 10, 3 );
 		//add_filter( 'as3cf_legacy_ms_subsite_prefix', array( $this, 'legacy_ms_subsite_prefix' ), 10, 2 );
+		//add_filter( 'as3cf_attachment_file_paths', array( $this, 'attachment_file_paths' ), 10, 3 );
 	}
 
 	/**
@@ -227,6 +228,29 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		$legacy_ms_prefix = 'sites/' . $details->blog_id . '/';
 
 		return $legacy_ms_prefix;
+	}
+
+	/**
+	 * This filter allows your to add or remove paths of files that will be uploaded
+	 * to S3. This can be used to upload associated images to an attachment used by a plugin.
+	 *
+	 * @param string $paths
+	 * @param int    $attachment_id
+	 * @param array  $meta
+	 *
+	 * @return array
+	 */
+	function attachment_file_paths( $paths, $attachment_id, $meta ) {
+		global $as3cf;
+
+		foreach ( $paths as $file ) {
+			$extra_file = $as3cf->apply_file_suffix( $file, '-plugin-copy' );
+			if ( file_exists( $extra_file ) ) {
+				$paths[] = $extra_file;
+			}
+		}
+
+		return $paths;
 	}
 
 }
