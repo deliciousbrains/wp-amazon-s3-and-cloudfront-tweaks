@@ -36,6 +36,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_get_attached_file_copy_back_to_local', array( $this, 'get_attached_file_copy_back_to_local' ), 10, 3 );
 		//add_filter( 'as3cf_legacy_ms_subsite_prefix', array( $this, 'legacy_ms_subsite_prefix' ), 10, 2 );
 		//add_filter( 'as3cf_attachment_file_paths', array( $this, 'attachment_file_paths' ), 10, 3 );
+		//add_filter( 'as3cf_show_deprecated_domain_setting', array( $this, 'show_deprecated_domain_setting' ) );
 	}
 
 	/**
@@ -251,6 +252,17 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		}
 
 		return $paths;
+	}
+
+	/**
+	 * Show the old Domain options in the Media Library settings tab
+	 *
+	 * @param bool $show
+	 *
+	 * @return bool
+	 */
+	function show_deprecated_domain_setting( $show ) {
+		return true;
 	}
 
 }
