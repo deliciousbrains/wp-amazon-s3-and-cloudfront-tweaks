@@ -36,6 +36,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_get_attached_file_copy_back_to_local', array( $this, 'get_attached_file_copy_back_to_local' ), 10, 3 );
 		//add_filter( 'as3cf_legacy_ms_subsite_prefix', array( $this, 'legacy_ms_subsite_prefix' ), 10, 2 );
 		//add_filter( 'as3cf_attachment_file_paths', array( $this, 'attachment_file_paths' ), 10, 3 );
+		//add_filter( 'as3cf_cloudfront_path_parts', array( $this, 'cloudfront_path_parts' ), 10, 2 );
 
 		// Assets Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-addon/
 		//add_filter( 'as3cf_assets_locations_in_scope_to_scan', array( $this, 'assets_locations' ) );
@@ -237,7 +238,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/**
-	 * This filter allows your to add or remove paths of files that will be uploaded
+	 * This filter allows you to add or remove paths of files that will be uploaded
 	 * to S3. This can be used to upload associated images to an attachment used by a plugin.
 	 *
 	 * @param string $paths
@@ -257,6 +258,25 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		}
 
 		return $paths;
+	}
+
+	/**
+	 * This filter allows you to adjust the path of a CloudFront URL.
+	 * Useful when using a CloudFront distribution which uses a subdirectory of a bucket as its source.
+	 *
+	 * This example would allow a CloudFront distribution of s3.example.com/wpos3 to serve files as s3.example.com.
+	 *
+	 * @param array  $path_parts
+	 * @param string $domain
+	 *
+	 * @return array
+	 */
+	function cloudfront_path_parts( $path_parts = array(), $domain = '' ) {
+		if ( 's3.example.com' === $domain && 1 < count( $path_parts ) && 'wpos3' === $path_parts[0] ) {
+			unset( $path_parts[0] );
+		}
+
+		return $path_parts;
 	}
 
 	/**
