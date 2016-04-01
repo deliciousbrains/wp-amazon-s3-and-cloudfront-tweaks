@@ -39,7 +39,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 
 		// Assets Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-addon/
 		//add_filter( 'as3cf_assets_locations_in_scope_to_scan', array( $this, 'assets_locations' ) );
-		//add_filter( 'as3cf_assets_ignore_file', array( $this, 'assets_ignore_file', 10, 3 ) );
+		//add_filter( 'as3cf_assets_ignore_file', array( $this, 'assets_ignore_file' ), 10, 3 );
 		//add_filter( 'as3cf_minify_exclude_files', array( $this, 'assets_minify_exclude' ) );
 		//add_filter( 'as3cf_gzip_mime_types', array( $this, 'assets_gzip_mimes' ), 10, 2 );
 	}
