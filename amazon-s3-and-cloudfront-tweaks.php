@@ -37,6 +37,12 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_legacy_ms_subsite_prefix', array( $this, 'legacy_ms_subsite_prefix' ), 10, 2 );
 		//add_filter( 'as3cf_attachment_file_paths', array( $this, 'attachment_file_paths' ), 10, 3 );
 		//add_filter( 'as3cf_show_deprecated_domain_setting', array( $this, 'show_deprecated_domain_setting' ) );
+
+		// Assets Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-addon/
+		//add_filter( 'as3cf_assets_locations_in_scope_to_scan', array( $this, 'assets_locations' ) );
+		//add_filter( 'as3cf_assets_ignore_file', array( $this, 'assets_ignore_file' ), 10, 3 );
+		//add_filter( 'as3cf_minify_exclude_files', array( $this, 'assets_minify_exclude' ) );
+		//add_filter( 'as3cf_gzip_mime_types', array( $this, 'assets_gzip_mimes' ), 10, 2 );
 	}
 
 	/**
@@ -263,6 +269,69 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 */
 	function show_deprecated_domain_setting( $show ) {
 		return true;
+	}
+
+	/**
+	 * This filter allows you to exclude locations from the assets addon.
+	 * Possible locations are 'core', 'themes', 'plugins' and 'mu-plugins'.
+	 *
+	 * @param array $locations
+	 *
+	 * @return array
+	 */
+	function assets_locations( $locations ) {
+		unset( $locations[3] ); // mu-plugins
+
+		return $locations;
+	}
+
+	/**
+	 * This filter allows you to exclude files from the assets addon. It provides more
+	 * granular control over the above filter, allowing you to exclude files by absolute
+	 * path or extension.
+	 *
+	 * @param bool   $ignore
+	 * @param string $file
+	 * @param array  $details
+	 *
+	 * @return bool
+	 */
+	function assets_ignore_file( $ignore, $file, $details ) {
+		if ( 'eot' === $details['extension'] ) {
+			return true; // Ignore Embedded OpenType fonts
+		}
+
+		return false;
+	}
+
+	/**
+	 * This filter allows you to exclude files from the assets addon minifier.
+	 * File paths should be absolute.
+	 *
+	 * @param array $exclude
+	 *
+	 * @return array
+	 */
+	function assets_minify_exclude( $exclude ) {
+		$exclude[] = '/abspath/wp-content/themes/twentyfifteen/genericons/genericons.css';
+
+		return $exclude;
+	}
+
+	/**
+	 * This filter allows you to control which file types will be gzipped.
+	 * The `$media_library` parameter shows the upload context. True when uploaded via the
+	 * Media Library or false when uploaded via the assets addon.
+	 *
+	 * @param array $mimes
+	 * @param bool  $media_library
+	 *
+	 * @return array
+	 */
+	function assets_gzip_mimes( $mimes, $media_library ) {
+		unset( $mimes[1] ); // Don't gzip Embedded OpenType fonts
+
+		return $mimes;
 	}
 
 }
