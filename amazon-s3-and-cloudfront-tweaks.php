@@ -37,6 +37,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_legacy_ms_subsite_prefix', array( $this, 'legacy_ms_subsite_prefix' ), 10, 2 );
 		//add_filter( 'as3cf_attachment_file_paths', array( $this, 'attachment_file_paths' ), 10, 3 );
 		//add_filter( 'as3cf_show_deprecated_domain_setting', array( $this, 'show_deprecated_domain_setting' ) );
+		//add_filter( 'as3cf_upload_attachment_local_files_to_remove', array( $this, 'local_files_to_remove' ), 10, 3 );
 
 		// Assets Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-addon/
 		//add_filter( 'as3cf_assets_locations_in_scope_to_scan', array( $this, 'assets_locations' ) );
@@ -334,6 +335,23 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		return $mimes;
 	}
 
+	/**
+	 * This filter allows you to control the files that are being removed from the server
+	 * after upload to S3.
+	 * 
+	 * @param array  $files_to_remove
+	 * @param int    $post_id
+	 * @param string $file_path
+	 *
+	 * @return array
+	 */
+	function local_files_to_remove( $files_to_remove, $post_id, $file_path ) {
+		if ( 'path/to/file.jpg' === $file_path ) {
+			$files_to_remove = array_diff( $files_to_remove, array( $file_path ) );
+		}
+
+		return $files_to_remove;
+	}
 }
 
 new Amazon_S3_and_CloudFront_Tweaks();
