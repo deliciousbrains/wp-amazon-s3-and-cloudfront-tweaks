@@ -358,7 +358,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	/**
 	 * This filter allows you to control the files that are being removed from the server
 	 * after upload to S3.
-	 * 
+	 *
 	 * @param array  $files_to_remove
 	 * @param int    $post_id
 	 * @param string $file_path
