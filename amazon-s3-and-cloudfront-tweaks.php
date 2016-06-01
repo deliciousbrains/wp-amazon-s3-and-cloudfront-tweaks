@@ -36,11 +36,13 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_get_attached_file_copy_back_to_local', array( $this, 'get_attached_file_copy_back_to_local' ), 10, 3 );
 		//add_filter( 'as3cf_legacy_ms_subsite_prefix', array( $this, 'legacy_ms_subsite_prefix' ), 10, 2 );
 		//add_filter( 'as3cf_attachment_file_paths', array( $this, 'attachment_file_paths' ), 10, 3 );
+		//add_filter( 'as3cf_show_deprecated_domain_setting', array( $this, 'show_deprecated_domain_setting' ) );
+		//add_filter( 'as3cf_upload_attachment_local_files_to_remove', array( $this, 'local_files_to_remove' ), 10, 3 );
 		//add_filter( 'as3cf_cloudfront_path_parts', array( $this, 'cloudfront_path_parts' ), 10, 2 );
 
 		// Assets Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-addon/
 		//add_filter( 'as3cf_assets_locations_in_scope_to_scan', array( $this, 'assets_locations' ) );
-		//add_filter( 'as3cf_assets_ignore_file', array( $this, 'assets_ignore_file', 10, 3 ) );
+		//add_filter( 'as3cf_assets_ignore_file', array( $this, 'assets_ignore_file' ), 10, 3 );
 		//add_filter( 'as3cf_minify_exclude_files', array( $this, 'assets_minify_exclude' ) );
 		//add_filter( 'as3cf_gzip_mime_types', array( $this, 'assets_gzip_mimes' ), 10, 2 );
 	}
@@ -261,6 +263,17 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/**
+	 * Show the old Domain options in the Media Library settings tab
+	 *
+	 * @param bool $show
+	 *
+	 * @return bool
+	 */
+	function show_deprecated_domain_setting( $show ) {
+		return true;
+	}
+
+	/**
 	 * This filter allows you to adjust the path of a CloudFront URL.
 	 * Useful when using a CloudFront distribution which uses a subdirectory of a bucket as its source.
 	 *
@@ -342,6 +355,23 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		return $mimes;
 	}
 
+	/**
+	 * This filter allows you to control the files that are being removed from the server
+	 * after upload to S3.
+	 * 
+	 * @param array  $files_to_remove
+	 * @param int    $post_id
+	 * @param string $file_path
+	 *
+	 * @return array
+	 */
+	function local_files_to_remove( $files_to_remove, $post_id, $file_path ) {
+		if ( 'path/to/file.jpg' === $file_path ) {
+			$files_to_remove = array_diff( $files_to_remove, array( $file_path ) );
+		}
+
+		return $files_to_remove;
+	}
 }
 
 new Amazon_S3_and_CloudFront_Tweaks();
