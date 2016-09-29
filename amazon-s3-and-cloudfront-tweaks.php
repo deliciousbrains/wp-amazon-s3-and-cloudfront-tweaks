@@ -22,7 +22,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	function __construct() {
 		// Uncomment the following lines to initiate an action / filter
 
-		// each setting has a filter, e.g, object-prefix would be the following
+		// Each setting has a filter, e.g, object-prefix would be the following
 		//add_action( 'as3cf_setting_object-prefix', array( $this, 'get_setting' ), 10, 2 );
 		//add_filter( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
 		//add_filter( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 3 );
@@ -39,6 +39,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_show_deprecated_domain_setting', array( $this, 'show_deprecated_domain_setting' ) );
 		//add_filter( 'as3cf_upload_attachment_local_files_to_remove', array( $this, 'local_files_to_remove' ), 10, 3 );
 		//add_filter( 'as3cf_cloudfront_path_parts', array( $this, 'cloudfront_path_parts' ), 10, 2 );
+		//add_filter( 'aws_get_client_args', array( $this, 'aws_client_args' ), 10, 1 );
 
 		// Assets Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-addon/
 		//add_filter( 'as3cf_assets_locations_in_scope_to_scan', array( $this, 'assets_locations' ) );
@@ -290,6 +291,21 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		}
 
 		return $path_parts;
+	}
+
+	/**
+	 * This filter allows you to adjust the arguments passed to the AWS client.
+	 *
+	 * This example would allow you to connect to Beijing, which is an isolated region.
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	function aws_client_args( $args ) {
+		$args['region'] = 'cn-north-1';
+
+		return $args;
 	}
 
 	/**
