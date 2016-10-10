@@ -27,6 +27,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
 		//add_filter( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 3 );
 		//add_filter( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
+		//add_filter( 'as3cf_upload_acl_sizes', array( $this, 'upload_acl_sizes' ), 10, 4 );
 		//add_filter( 'as3cf_object_meta', array( $this, 'object_meta' ), 10, 2 );
 		//add_filter( 'as3cf_hidpi_suffix', array( $this, 'hidpi_suffix' ), 10, 1 );
 		//add_filter( 'as3cf_get_object_version_string', array( $this, 'get_object_version_string' ), 10, 1 );
@@ -101,7 +102,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 
 	/**
 	 * This filter allows your to change the default Access Control List (ACL)
-	 * permission for an uploaded file to S3
+	 * permission for an original file to S3
 	 *
 	 * @param string $acl defaults to 'public-read'
 	 * @param array  $data
@@ -110,8 +111,26 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * @return string
 	 */
 	function upload_acl( $acl, $data, $post_id ) {
-		// make all uploaded files on S3 private
-		$acl = 'private';
+		// Make original files on S3 private
+		return 'private';
+	}
+
+	/**
+	 * This filter allows your to change the default Access Control List (ACL)
+	 * permission for intermediate image sizes to S3
+	 *
+	 * @param string $acl defaults to 'public-read'
+	 * @param string $size
+	 * @param int    $post_id
+	 * @param array  $data
+	 *
+	 * @return string
+	 */
+	function upload_acl_sizes( $acl, $size, $post_id, $data ) {
+		// Make thumbnail and medium image sizes on S3 private
+		if ( 'medium' === $size || 'thumbnail' === $size ) {
+			return 'private';
+		}
 
 		return $acl;
 	}
