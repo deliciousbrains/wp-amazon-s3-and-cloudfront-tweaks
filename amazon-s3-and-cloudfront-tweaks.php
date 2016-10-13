@@ -25,7 +25,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		// Each setting has a filter, e.g, object-prefix would be the following
 		//add_action( 'as3cf_setting_object-prefix', array( $this, 'get_setting' ), 10, 2 );
 		//add_filter( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
-		//add_filter( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 3 );
+		//add_filter( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 4 );
 		//add_filter( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
 		//add_filter( 'as3cf_upload_acl_sizes', array( $this, 'upload_acl_sizes' ), 10, 4 );
 		//add_filter( 'as3cf_object_meta', array( $this, 'object_meta' ), 10, 2 );
@@ -88,11 +88,11 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * @param bool  $pre_update
 	 * @param array $data    attachment metadata
 	 * @param int   $post_id attachment ID
+	 * @param mixed $old_s3object
 	 *
 	 * @return mixed
 	 */
-	function pre_update_attachment_metadata( $pre_update, $data, $post_id ) {
-
+	function pre_update_attachment_metadata( $pre_update, $data, $post_id, $old_s3object ) {
 		if ( 55 == $post_id ) {
 			$pre_update = true; // abort the upload
 		}
