@@ -41,12 +41,14 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_upload_attachment_local_files_to_remove', array( $this, 'local_files_to_remove' ), 10, 3 );
 		//add_filter( 'as3cf_cloudfront_path_parts', array( $this, 'cloudfront_path_parts' ), 10, 2 );
 		//add_filter( 'aws_get_client_args', array( $this, 'aws_client_args' ), 10, 1 );
+		//add_filter( 'as3cf_expires', array( $this, 'default_expires' ), 10, 1 );
 
 		// Assets Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-addon/
 		//add_filter( 'as3cf_assets_locations_in_scope_to_scan', array( $this, 'assets_locations' ) );
 		//add_filter( 'as3cf_assets_ignore_file', array( $this, 'assets_ignore_file' ), 10, 3 );
 		//add_filter( 'as3cf_minify_exclude_files', array( $this, 'assets_minify_exclude' ) );
 		//add_filter( 'as3cf_gzip_mime_types', array( $this, 'assets_gzip_mimes' ), 10, 2 );
+		//add_filter( 'as3cf_assets_expires', array( $this, 'assets_default_expires' ), 10, 1 );
 	}
 
 	/**
@@ -328,6 +330,17 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/**
+	 * This filter allows you to adjust the expires time for private files.
+	 *
+	 * @param int $expires
+	 *
+	 * @return int
+	 */
+	function default_expires( $expires ) {
+		return 60 * 60; // 1 hour
+	}
+
+	/**
 	 * This filter allows you to exclude locations from the assets addon.
 	 * Possible locations are 'core', 'themes', 'plugins' and 'mu-plugins'.
 	 *
@@ -388,6 +401,17 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		unset( $mimes[1] ); // Don't gzip Embedded OpenType fonts
 
 		return $mimes;
+	}
+
+	/**
+	 * This filter allows you to adjust the expires time for private assets.
+	 *
+	 * @param int $expires
+	 *
+	 * @return int
+	 */
+	function default_assets_expires( $expires ) {
+		return 60 * 60; // 1 hour
 	}
 
 	/**
