@@ -4,7 +4,7 @@ Plugin Name: WP Offload S3 Tweaks
 Plugin URI: http://github.com/deliciousbrains/wp-amazon-s3-and-cloudfront-tweaks
 Description: Examples of using WP Offload S3's filters
 Author: Delicious Brains
-Version: 0.1.1
+Version: 0.1.2
 Author URI: http://deliciousbrains.com
 */
 // Copyright (c) 2015 Delicious Brains. All rights reserved.
@@ -19,11 +19,12 @@ Author URI: http://deliciousbrains.com
 // **********************************************************************
 
 class Amazon_S3_and_CloudFront_Tweaks {
+
 	function __construct() {
 		// Uncomment the following lines to initiate an action / filter
 
 		// Each setting has a filter, e.g, object-prefix would be the following
-		//add_action( 'as3cf_setting_object-prefix', array( $this, 'get_setting' ), 10, 2 );
+		//add_action( 'as3cf_setting_object-prefix', array( $this, 'get_setting_object_prefix' ), 10, 1 );
 		//add_filter( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
 		//add_filter( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 4 );
 		//add_filter( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
@@ -52,19 +53,14 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/**
-	 * This filter allows your to override specific settings before the are used
+	 * The "as3cf_setting_{key} filter allows your to override specific settings before they are used.
 	 *
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed $value
 	 *
 	 * @return string
 	 */
-	function get_setting( $key, $value ) {
-		if ( 'object-prefix' == $key ) {
-			$value = '/my/custompath/';
-		}
-
-		return $value;
+	function get_setting_object_prefix( $value ) {
+		return '/my/custompath/';
 	}
 
 	/**
