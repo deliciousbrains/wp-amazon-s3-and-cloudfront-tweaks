@@ -43,6 +43,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_cloudfront_path_parts', array( $this, 'cloudfront_path_parts' ), 10, 2 );
 		//add_filter( 'aws_get_client_args', array( $this, 'aws_client_args' ), 10, 1 );
 		//add_filter( 'as3cf_expires', array( $this, 'default_expires' ), 10, 1 );
+		//add_filter( 'as3cfpro_media_actions_capability', array( $this, 'media_actions_capability' ), 10, 1 );
 
 		// Assets Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-addon/
 		//add_filter( 'as3cf_assets_locations_in_scope_to_scan', array( $this, 'assets_locations' ) );
@@ -334,6 +335,29 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 */
 	function default_expires( $expires ) {
 		return 60 * 60; // 1 hour
+	}
+
+	/**
+	 * This filter allows you to control the default capability for using
+	 * the on-demand S3 media actions.
+	 *
+	 * The default capability is "manage_options" which only Administrators have
+	 * of the roles that you get out-of-the-box with WordPress.
+	 *
+	 * Return "do_not_allow" to disable these for _all_ users.
+	 *
+	 * E.g. "Copy to S3" or "Remove from S3"
+	 *
+	 * @param string $capability Registered capability identifier
+	 *
+	 * @return string
+	 */
+	function media_actions_capability( $capability ) {
+		/*
+		 * This capability would allow users with an Editor role to use the
+		 * on-demand actions as well.
+		 */
+		return 'delete_others_posts';
 	}
 
 	/**
