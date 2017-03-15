@@ -348,11 +348,11 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * E.g. "Copy to S3" or "Remove from S3"
 	 *
-	 * @param $cap
+	 * @param string $capability Registered capability identifier
 	 *
 	 * @return string
 	 */
-	function media_actions_capability( $cap ) {
+	function media_actions_capability( $capability ) {
 		/*
 		 * This capability would allow users with an Editor role to use the
 		 * on-demand actions as well.
