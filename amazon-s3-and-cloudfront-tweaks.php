@@ -44,6 +44,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'aws_get_client_args', array( $this, 'aws_client_args' ), 10, 1 );
 		//add_filter( 'as3cf_expires', array( $this, 'default_expires' ), 10, 1 );
 		//add_filter( 'as3cfpro_media_actions_capability', array( $this, 'media_actions_capability' ), 10, 1 );
+		//add_filter( 'as3cf_local_domains', array( $this, 'local_domains' ), 10, 1 );
 
 		// Assets Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-addon/
 		//add_filter( 'as3cf_assets_locations_in_scope_to_scan', array( $this, 'assets_locations' ) );
@@ -360,6 +361,28 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 * on-demand actions as well.
 		 */
 		return 'delete_others_posts';
+	}
+
+	/**
+	 * This filter allows you to alter the local domains that can be filtered to S3 URLs.
+	 *
+	 * If you're dynamically altering the site's URL with something like the following...
+	 *
+	 * define( 'WP_SITEURL', 'http://' . $_SERVER['HTTP_HOST'] );
+	 * define( 'WP_HOME', 'http://' . $_SERVER['HTTP_HOST'] );
+	 *
+	 * ... then you'll need to append all known domains with this filter so that
+	 * any URLs inserted into content with an alternate domain are matched as local.
+	 *
+	 * @param array $domains
+	 *
+	 * @return array
+	 */
+	function local_domains( $domains ) {
+		$domains[] = 's3.localdev';
+		$domains[] = 'wpos3.localdev';
+
+		return $domains;
 	}
 
 	/**
