@@ -298,6 +298,24 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/**
+	 * This filter allows you to control the files that are being removed from the server
+	 * after upload to S3.
+	 *
+	 * @param array  $files_to_remove
+	 * @param int    $post_id
+	 * @param string $file_path
+	 *
+	 * @return array
+	 */
+	function local_files_to_remove( $files_to_remove, $post_id, $file_path ) {
+		if ( 'path/to/file.jpg' === $file_path ) {
+			$files_to_remove = array_diff( $files_to_remove, array( $file_path ) );
+		}
+
+		return $files_to_remove;
+	}
+
+	/**
 	 * This filter allows you to adjust the path of a CloudFront URL.
 	 * Useful when using a CloudFront distribution which uses a subdirectory of a bucket as its source.
 	 *
@@ -450,24 +468,6 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 */
 	function assets_pull_test_endpoint_sslverify( $verify, $domain ) {
 		return false;
-	}
-
-	/**
-	 * This filter allows you to control the files that are being removed from the server
-	 * after upload to S3.
-	 *
-	 * @param array  $files_to_remove
-	 * @param int    $post_id
-	 * @param string $file_path
-	 *
-	 * @return array
-	 */
-	function local_files_to_remove( $files_to_remove, $post_id, $file_path ) {
-		if ( 'path/to/file.jpg' === $file_path ) {
-			$files_to_remove = array_diff( $files_to_remove, array( $file_path ) );
-		}
-
-		return $files_to_remove;
 	}
 }
 
