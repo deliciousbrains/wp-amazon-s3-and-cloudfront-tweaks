@@ -51,6 +51,9 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_minify_exclude_files', array( $this, 'assets_minify_exclude' ) );
 		//add_filter( 'as3cf_gzip_mime_types', array( $this, 'assets_gzip_mimes' ), 10, 2 );
 		//add_filter( 'as3cf_assets_expires', array( $this, 'assets_default_expires' ), 10, 1 );
+
+		// Assets Pull Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-pull-addon/
+		//add_filter( 'as3cf_assets_pull_test_endpoint_sslverify', array( $this, 'assets_pull_test_endpoint_sslverify' ), 10, 2 );
 	}
 
 	/**
@@ -434,6 +437,19 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 */
 	function default_assets_expires( $expires ) {
 		return 60 * 60; // 1 hour
+	}
+
+	/**
+	 * By default HTTPS certificates are verified during Assets Pull's domain check,
+	 * you might want to turn that off for self-signed dev certificates.
+	 *
+	 * @param bool   $verify
+	 * @param string $domain
+	 *
+	 * @return bool
+	 */
+	function assets_pull_test_endpoint_sslverify( $verify, $domain ) {
+		return false;
 	}
 
 	/**
