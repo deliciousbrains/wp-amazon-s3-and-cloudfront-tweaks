@@ -51,7 +51,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_assets_ignore_file', array( $this, 'assets_ignore_file' ), 10, 3 );
 		//add_filter( 'as3cf_minify_exclude_files', array( $this, 'assets_minify_exclude' ) );
 		//add_filter( 'as3cf_gzip_mime_types', array( $this, 'assets_gzip_mimes' ), 10, 2 );
-		//add_filter( 'as3cf_assets_expires', array( $this, 'assets_default_expires' ), 10, 1 );
+		//add_filter( 'as3cf_assets_expires', array( $this, 'default_assets_expires' ), 10, 1 );
 
 		// Assets Pull Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-pull-addon/
 		//add_filter( 'as3cf_assets_pull_test_endpoint_sslverify', array( $this, 'assets_pull_test_endpoint_sslverify' ), 10, 2 );
