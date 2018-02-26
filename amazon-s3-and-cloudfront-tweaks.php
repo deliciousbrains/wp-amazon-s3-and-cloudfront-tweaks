@@ -52,6 +52,9 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_minify_exclude_files', array( $this, 'assets_minify_exclude' ) );
 		//add_filter( 'as3cf_gzip_mime_types', array( $this, 'assets_gzip_mimes' ), 10, 2 );
 		//add_filter( 'as3cf_assets_expires', array( $this, 'assets_default_expires' ), 10, 1 );
+
+		// Assets Pull Addon https://deliciousbrains.com/wp-offload-s3/doc/assets-pull-addon/
+		//add_filter( 'as3cf_assets_pull_test_endpoint_sslverify', array( $this, 'assets_pull_test_endpoint_sslverify' ), 10, 2 );
 	}
 
 	/**
@@ -296,6 +299,24 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/**
+	 * This filter allows you to control the files that are being removed from the server
+	 * after upload to S3.
+	 *
+	 * @param array  $files_to_remove
+	 * @param int    $post_id
+	 * @param string $file_path
+	 *
+	 * @return array
+	 */
+	function local_files_to_remove( $files_to_remove, $post_id, $file_path ) {
+		if ( 'path/to/file.jpg' === $file_path ) {
+			$files_to_remove = array_diff( $files_to_remove, array( $file_path ) );
+		}
+
+		return $files_to_remove;
+	}
+
+	/**
 	 * This filter allows you to adjust the path of a CloudFront URL.
 	 * Useful when using a CloudFront distribution which uses a subdirectory of a bucket as its source.
 	 *
@@ -460,21 +481,16 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/**
-	 * This filter allows you to control the files that are being removed from the server
-	 * after upload to S3.
+	 * By default HTTPS certificates are verified during Assets Pull's domain check,
+	 * you might want to turn that off for self-signed dev certificates.
 	 *
-	 * @param array  $files_to_remove
-	 * @param int    $post_id
-	 * @param string $file_path
+	 * @param bool   $verify
+	 * @param string $domain
 	 *
-	 * @return array
+	 * @return bool
 	 */
-	function local_files_to_remove( $files_to_remove, $post_id, $file_path ) {
-		if ( 'path/to/file.jpg' === $file_path ) {
-			$files_to_remove = array_diff( $files_to_remove, array( $file_path ) );
-		}
-
-		return $files_to_remove;
+	function assets_pull_test_endpoint_sslverify( $verify, $domain ) {
+		return false;
 	}
 }
 
