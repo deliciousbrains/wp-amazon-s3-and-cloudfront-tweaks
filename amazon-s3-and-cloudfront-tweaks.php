@@ -4,7 +4,7 @@ Plugin Name: WP Offload S3 Tweaks
 Plugin URI: http://github.com/deliciousbrains/wp-amazon-s3-and-cloudfront-tweaks
 Description: Examples of using WP Offload S3's filters
 Author: Delicious Brains
-Version: 0.1.2
+Version: 0.1.3
 Author URI: http://deliciousbrains.com
 */
 // Copyright (c) 2015 Delicious Brains. All rights reserved.
@@ -253,17 +253,17 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * This filter allows you to add or remove paths of files that will be uploaded
 	 * to S3. This can be used to upload associated images to an attachment used by a plugin.
 	 *
-	 * @param string $paths
-	 * @param int    $attachment_id
-	 * @param array  $meta
+	 * @param array $paths
+	 * @param int   $attachment_id
+	 * @param array $meta
 	 *
 	 * @return array
 	 */
 	function attachment_file_paths( $paths, $attachment_id, $meta ) {
-		global $as3cf;
-
+		// In this example we're expecting there to be an unregistered '@2x' file for each image file.
 		foreach ( $paths as $file ) {
-			$extra_file = $as3cf->apply_file_suffix( $file, '-plugin-copy' );
+			$pathinfo   = pathinfo( $file );
+			$extra_file = $pathinfo['dirname'] . '/' . $pathinfo['filename'] . '-backup-copy.' . $pathinfo['extension'];
 			if ( file_exists( $extra_file ) ) {
 				$paths[] = $extra_file;
 			}
