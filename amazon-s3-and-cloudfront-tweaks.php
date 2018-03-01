@@ -260,7 +260,6 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * @return array
 	 */
 	function attachment_file_paths( $paths, $attachment_id, $meta ) {
-		// In this example we're expecting there to be an unregistered '@2x' file for each image file.
 		foreach ( $paths as $file ) {
 			$pathinfo   = pathinfo( $file );
 			$extra_file = $pathinfo['dirname'] . '/' . $pathinfo['filename'] . '-backup-copy.' . $pathinfo['extension'];
