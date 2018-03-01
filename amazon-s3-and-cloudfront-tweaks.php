@@ -30,7 +30,6 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
 		//add_filter( 'as3cf_upload_acl_sizes', array( $this, 'upload_acl_sizes' ), 10, 4 );
 		//add_filter( 'as3cf_object_meta', array( $this, 'object_meta' ), 10, 4 );
-		//add_filter( 'as3cf_hidpi_suffix', array( $this, 'hidpi_suffix' ), 10, 1 );
 		//add_filter( 'as3cf_get_object_version_string', array( $this, 'get_object_version_string' ), 10, 1 );
 		//add_filter( 'as3cf_wp_get_attachment_url', array( $this, 'wp_get_attachment_url' ), 10, 2 );
 		//add_filter( 'as3cf_use_ssl', array( $this, 'use_ssl' ), 10, 1 );
@@ -136,20 +135,6 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		}
 
 		return $acl;
-	}
-
-	/**
-	 * This filter allows you to change the file suffix used to denote HiDPI files
-	 * when using a specific HiDPI plugin
-	 *
-	 * @param string $suffix defaults to '@2x'
-	 *
-	 * @return string
-	 */
-	function hidpi_suffix( $suffix ) {
-		$suffix = '-2x';
-
-		return $suffix;
 	}
 
 	/**
