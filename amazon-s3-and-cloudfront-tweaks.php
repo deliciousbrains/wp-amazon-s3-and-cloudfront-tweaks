@@ -45,9 +45,17 @@ class Amazon_S3_and_CloudFront_Tweaks {
 
 		/*
 		 * Storage Provider related filters.
+		 *
+		 * Each supported Storage Provider can have client and service client args specified.
+		 *
+		 * The `as3cf_${provider_key}_init_client_args` filter is good for setting 'endpoint' and other settings that change how to access the provider's API.
+		 * The `as3cf_${provider_key}_${service_key}_client_args` filter is for setting service specific changes, such as 'use_path_style_endpoint' to force bucket to be in URL path rather than domain.
+		 *
+		 * Amazon S3: provider_key => aws, service_key => s3
+		 * DigitalOcean Spaces: provider_key => do, service_key => spaces
 		 */
-
-		//add_filter( 'aws_get_client_args', array( $this, 'aws_get_client_args' ), 10, 1 );
+		//add_filter( 'as3cf_aws_init_client_args', array( $this, 'aws_init_client_args' ), 10, 1 );
+		//add_filter( 'as3cf_aws_s3_client_args', array( $this, 'aws_s3_client_args' ), 10, 1 );
 
 		/*
 		 * Storage related filters.
@@ -123,18 +131,45 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/**
-	 * This filter allows you to adjust the arguments passed to the AWS client.
+	 * This filter allows you to adjust the arguments passed to the provider's SDK client.
 	 *
-	 * This example would allow you to connect to Beijing, which is an isolated region.
+	 * @see     https://docs.aws.amazon.com/aws-sdk-php/v3/api/class-Aws.AwsClient.html#___construct
 	 *
-	 * @handles `aws_get_client_args`
+	 * @handles `as3cf_aws_init_client_args`
 	 *
 	 * @param array $args
 	 *
 	 * @return array
+	 *
+	 * Note: A good place for changing 'endpoint', 'credentials' or 'signature_version' for all API requests.
 	 */
-	function aws_get_client_args( $args ) {
+	function aws_init_client_args( $args ) {
+		// Example forces SDK to use the restricted 'cn-north-1' region.
 		$args['region'] = 'cn-north-1';
+
+		return $args;
+	}
+
+	/**
+	 * This filter allows you to adjust the arguments passed to the provider's service specific SDK client.
+	 *
+	 * The service specific SDK client is created from the initial provider SDK client, and inherits most of its config.
+	 * The service specific SDK client is re-created more often than the provider SDK client for specific scenarios, so if possible
+	 * set overrides in the provider client rather than service client for a slight improvement in performance.
+	 *
+	 * @see     https://docs.aws.amazon.com/aws-sdk-php/v3/api/class-Aws.S3.S3Client.html#___construct
+	 *
+	 * @handles `as3cf_aws_s3_client_args`
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 *
+	 * Note: A good place for changing 'signature_version', 'use_path_style_endpoint' etc. for specific bucket/object actions.
+	 */
+	function aws_s3_client_args( $args ) {
+		// Example forces SDK to use endpoint URLs with bucket name in path rather than domain name.
+		$args['use_path_style_endpoint'] = true;
 
 		return $args;
 	}
