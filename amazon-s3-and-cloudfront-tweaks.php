@@ -95,10 +95,10 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cfpro_calculate_batch_limit', array( $this, 'calculate_batch_limit' ) );
 		//add_filter( 'as3cfpro_uploader_batch_time', array( $this, 'uploader_batch_time' ) );
 		//add_filter( 'as3cfpro_uploader_batch_limit', array( $this, 'uploader_batch_limit' ) );
-		//add_filter( 'as3cfpro_downloader_batch_time', array( $this, 'uploader_batch_time' ) );
-		//add_filter( 'as3cfpro_downloader_batch_limit', array( $this, 'uploader_batch_limit' ) );
-		//add_filter( 'as3cfpro_download_and_remover_batch_time', array( $this, 'uploader_batch_time' ) );
-		//add_filter( 'as3cfpro_download_and_remover_batch_limit', array( $this, 'uploader_batch_limit' ) );
+		//add_filter( 'as3cfpro_downloader_batch_time', array( $this, 'downloader_batch_time' ) );
+		//add_filter( 'as3cfpro_downloader_batch_limit', array( $this, 'downloader_batch_limit' ) );
+		//add_filter( 'as3cfpro_download_and_remover_batch_time', array( $this, 'download_and_remover_batch_time' ) );
+		//add_filter( 'as3cfpro_download_and_remover_batch_limit', array( $this, 'download_and_remover_batch_limit' ) );
 		//add_filter( 'as3cf_seconds_between_batches', array( $this, 'seconds_between_batches' ) );
 		//add_filter( 'as3cf_default_time_limit', array( $this, 'default_time_limit' ) );
 		//add_filter( 'as3cf_tool_copy_buckets_batch_size', array( $this, 'tool_copy_buckets_batch_size' ) );
