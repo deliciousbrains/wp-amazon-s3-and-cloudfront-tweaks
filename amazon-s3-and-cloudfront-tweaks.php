@@ -99,6 +99,10 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cfpro_downloader_batch_limit', array( $this, 'uploader_batch_limit' ) );
 		//add_filter( 'as3cfpro_download_and_remover_batch_time', array( $this, 'uploader_batch_time' ) );
 		//add_filter( 'as3cfpro_download_and_remover_batch_limit', array( $this, 'uploader_batch_limit' ) );
+		//add_filter( 'as3cf_seconds_between_batches', array( $this, 'seconds_between_batches' ) );
+		//add_filter( 'as3cf_default_time_limit', array( $this, 'default_time_limit' ) );
+		//add_filter( 'as3cf_tool_copy_buckets_batch_size', array( $this, 'tool_copy_buckets_batch_size' ) );
+		//add_filter( 'as3cf_tool_remove_local_files_batch_size', array( $this, 'tool_remove_local_files_batch_size' ) );
 
 		/*
 		 * WP Offload Media - Assets Pull Addon
@@ -626,17 +630,21 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	/**
 	 * Initialization batch time in seconds (Default 5) for modal tools.
 	 *
+	 * @handles `as3cfpro_calculate_batch_time`
+	 *
 	 * @param int $value
 	 *
 	 * @return int
 	 */
 	function calculate_batch_time( $value ) {
-		// Example increases the number of seconds before calculation phase finishes up current batch and gives site a bit of tie to breathe.
+		// Example increases the number of seconds before calculation phase finishes up current batch and gives site a bit of time to breathe.
 		return 25;
 	}
 
 	/**
 	 * Initialization batch size in number of attachments (Default 100) for modal tools.
+	 *
+	 * @handles `as3cfpro_calculate_batch_limit`
 	 *
 	 * @param int $value
 	 *
@@ -650,6 +658,8 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	/**
 	 * Uploader modal's batch time in seconds (Default 10).
 	 *
+	 * @handles `as3cfpro_uploader_batch_time`
+	 *
 	 * @param int $value
 	 *
 	 * @return int
@@ -661,6 +671,8 @@ class Amazon_S3_and_CloudFront_Tweaks {
 
 	/**
 	 * Uploader modal's batch size in number of attachments (Default 10).
+	 *
+	 * @handles `as3cfpro_uploader_batch_limit`
 	 *
 	 * @param int $value
 	 *
@@ -674,6 +686,8 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	/**
 	 * Downloader modal's batch time in seconds (Default 10).
 	 *
+	 * @handles `as3cfpro_downloader_batch_time`
+	 *
 	 * @param int $value
 	 *
 	 * @return int
@@ -685,6 +699,8 @@ class Amazon_S3_and_CloudFront_Tweaks {
 
 	/**
 	 * Downloader modal's batch size in number of attachments (Default 10).
+	 *
+	 * @handles `as3cfpro_downloader_batch_limit`
 	 *
 	 * @param int $value
 	 *
@@ -698,6 +714,8 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	/**
 	 * Download and Remove modal's batch time in seconds (Default 10).
 	 *
+	 * @handles `as3cfpro_download_and_remover_batch_time`
+	 *
 	 * @param int $value
 	 *
 	 * @return int
@@ -710,6 +728,8 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	/**
 	 * Download and Remove modal's batch size in number of attachments (Default 10).
 	 *
+	 * @handles `as3cfpro_download_and_remover_batch_limit`
+	 *
 	 * @param int $value
 	 *
 	 * @return int
@@ -717,6 +737,66 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	function download_and_remover_batch_limit( $value ) {
 		// Example increases the maximum number of attachments to attempt to download and remove within batch time limit before site given a moment to breathe.
 		return 25;
+	}
+
+	/**
+	 * Number of seconds to sleep between background tool batches. Defaults to 0 seconds, minimum 0.
+	 *
+	 * @handles `as3cf_seconds_between_batches`
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 */
+	function seconds_between_batches( $value ) {
+		// Example gives the site a second to breathe between batches in background tools.
+		return 1;
+	}
+
+	/**
+	 * Time limit in seconds for any background tool to process a number of batches before taking a breather and waiting for next cron schedule tick (Default 20).
+	 *
+	 * @handles `as3cf_default_time_limit`
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 */
+	function default_time_limit( $value ) {
+		// Example increases to limit to 25 seconds.
+		return 25;
+	}
+
+	/**
+	 * Copy between bucket's number of attachments to analyse for copy per batch (Default 100).
+	 *
+	 * @handles `as3cf_tool_copy_buckets_batch_size`
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 *
+	 * Note: No matter how many attachments are determined to need copying in batch, actual copy will process no more than 10 attachments at a time with a time limit check after each chunk is processed.
+	 */
+	function tool_copy_buckets_batch_size( $value ) {
+		// Example decreases number of attachments in batch to analyse for copy to bucket.
+		return 50;
+	}
+
+	/**
+	 * Remove local files' number of attachments to analyse for removal per batch (Default 100).
+	 *
+	 * @handles `as3cf_tool_remove_local_files_batch_size`
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 *
+	 * Note: No matter how many attachments are determined to need removing from local in batch, actual removal will process no more than 10 attachments at a time with a time limit check after each chunk is processed.
+	 */
+	function tool_remove_local_files_batch_size( $value ) {
+		// Example decreases number of attachments in batch to analyse for removal from local.
+		return 50;
 	}
 
 
