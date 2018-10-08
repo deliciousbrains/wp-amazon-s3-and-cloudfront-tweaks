@@ -91,6 +91,14 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 */
 
 		//add_filter( 'as3cfpro_media_actions_capability', array( $this, 'media_actions_capability' ), 10, 1 );
+		//add_filter( 'as3cfpro_calculate_batch_time', array( $this, 'calculate_batch_time' ) );
+		//add_filter( 'as3cfpro_calculate_batch_limit', array( $this, 'calculate_batch_limit' ) );
+		//add_filter( 'as3cfpro_uploader_batch_time', array( $this, 'uploader_batch_time' ) );
+		//add_filter( 'as3cfpro_uploader_batch_limit', array( $this, 'uploader_batch_limit' ) );
+		//add_filter( 'as3cfpro_downloader_batch_time', array( $this, 'uploader_batch_time' ) );
+		//add_filter( 'as3cfpro_downloader_batch_limit', array( $this, 'uploader_batch_limit' ) );
+		//add_filter( 'as3cfpro_download_and_remover_batch_time', array( $this, 'uploader_batch_time' ) );
+		//add_filter( 'as3cfpro_download_and_remover_batch_limit', array( $this, 'uploader_batch_limit' ) );
 
 		/*
 		 * WP Offload Media - Assets Pull Addon
@@ -613,6 +621,102 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		// Example capability would allow users with an Editor role to use the
 		// on-demand actions as well.
 		return 'delete_others_posts';
+	}
+
+	/**
+	 * Initialization batch time in seconds (Default 5) for modal tools.
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 */
+	function calculate_batch_time( $value ) {
+		// Example increases the number of seconds before calculation phase finishes up current batch and gives site a bit of tie to breathe.
+		return 25;
+	}
+
+	/**
+	 * Initialization batch size in number of attachments (Default 100) for modal tools.
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 */
+	function calculate_batch_limit( $value ) {
+		// Example increases the size of each calculation batch that is completed before checking batch time limit and potentially processing another batch.
+		return 200;
+	}
+
+	/**
+	 * Uploader modal's batch time in seconds (Default 10).
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 */
+	function uploader_batch_time( $value ) {
+		// Example increases the maximum time allowed for a batch of uploads to be completed before site is given a moment to breathe.
+		return 25;
+	}
+
+	/**
+	 * Uploader modal's batch size in number of attachments (Default 10).
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 */
+	function uploader_batch_limit( $value ) {
+		// Example increases the maximum number of attachments to attempt to upload within batch time limit before site given a moment to breathe.
+		return 25;
+	}
+
+	/**
+	 * Downloader modal's batch time in seconds (Default 10).
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 */
+	function downloader_batch_time( $value ) {
+		// Example increases the maximum time allowed for a batch of downloads to be completed before site is given a moment to breathe.
+		return 25;
+	}
+
+	/**
+	 * Downloader modal's batch size in number of attachments (Default 10).
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 */
+	function downloader_batch_limit( $value ) {
+		// Example increases the maximum number of attachments to attempt to download within batch time limit before site given a moment to breathe.
+		return 25;
+	}
+
+	/**
+	 * Download and Remove modal's batch time in seconds (Default 10).
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 */
+	function download_and_remover_batch_time( $value ) {
+		// Example increases the maximum time allowed for a batch of download and removes to be completed before site is given a moment to breathe.
+		return 25;
+	}
+
+	/**
+	 * Download and Remove modal's batch size in number of attachments (Default 10).
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 */
+	function download_and_remover_batch_limit( $value ) {
+		// Example increases the maximum number of attachments to attempt to download and remove within batch time limit before site given a moment to breathe.
+		return 25;
 	}
 
 
