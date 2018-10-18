@@ -255,6 +255,15 @@ class Amazon_S3_and_CloudFront_Tweaks {
 			$abort = true; // abort the upload
 		}
 
+		// Example helps bulk offload tool on severely resource restricted shared hosting.
+		// WARNING: Do not uncomment the following code unless you're on shared hosting and getting "too many open files" errors
+		// as `gc_collect_cycles()` could potentially impact performance of the bulk offload and WordPress.
+		/*
+		if ( false === $abort ) {
+			gc_collect_cycles();
+		}
+		*/
+
 		return $abort;
 	}
 
