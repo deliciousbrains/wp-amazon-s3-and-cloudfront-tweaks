@@ -4,7 +4,7 @@ Plugin Name: WP Offload Media Tweaks
 Plugin URI: http://github.com/deliciousbrains/wp-amazon-s3-and-cloudfront-tweaks
 Description: Examples of using WP Offload Media's filters
 Author: Delicious Brains
-Version: 0.2.0
+Version: 0.2.1
 Author URI: http://deliciousbrains.com
 */
 
@@ -223,7 +223,10 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * updated by some process.
 	 */
 	function pre_update_attachment_metadata( $abort, $data, $post_id, $old_provider_object ) {
-		if ( 55 == $post_id ) {
+		// Example stops movie files from being offloaded when added to library or metadata updated.
+		$file      = get_post_meta( $post_id, '_wp_attached_file', true );
+		$extension = is_string( $file ) ? pathinfo( $file, PATHINFO_EXTENSION ) : false;
+		if ( is_string( $extension ) && in_array( $extension, array( 'mp4', 'mov' ) ) ) {
 			$abort = true; // abort the upload
 		}
 
@@ -245,9 +248,21 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * including using Pro's bulk offload tools.
 	 */
 	function pre_upload_attachment( $abort, $post_id, $data ) {
-		if ( 55 == $post_id ) {
+		// Example stops movie files from being offloaded.
+		$file      = get_post_meta( $post_id, '_wp_attached_file', true );
+		$extension = is_string( $file ) ? pathinfo( $file, PATHINFO_EXTENSION ) : false;
+		if ( is_string( $extension ) && in_array( $extension, array( 'mp4', 'mov' ) ) ) {
 			$abort = true; // abort the upload
 		}
+
+		// Example helps bulk offload tool on severely resource restricted shared hosting.
+		// WARNING: Do not uncomment the following code unless you're on shared hosting and getting "too many open files" errors
+		// as `gc_collect_cycles()` could potentially impact performance of the bulk offload and WordPress.
+		/*
+		if ( false === $abort ) {
+			gc_collect_cycles();
+		}
+		*/
 
 		return $abort;
 	}
