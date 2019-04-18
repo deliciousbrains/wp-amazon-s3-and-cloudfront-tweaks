@@ -4,7 +4,7 @@ Plugin Name: WP Offload Media Tweaks
 Plugin URI: http://github.com/deliciousbrains/wp-amazon-s3-and-cloudfront-tweaks
 Description: Examples of using WP Offload Media's filters
 Author: Delicious Brains
-Version: 0.2.1
+Version: 0.3.0
 Author URI: http://deliciousbrains.com
 */
 
@@ -58,9 +58,20 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_aws_s3_client_args', array( $this, 'aws_s3_client_args' ), 10, 1 );
 
 		/*
+		 * Custom S3 API Example: MinIO
+		 * @see https://min.io/
+		 */
+		//add_filter( 'as3cf_aws_s3_client_args', array( $this, 'minio_s3_client_args' ) );
+		//add_filter( 'as3cf_aws_get_regions', array( $this, 'minio_get_regions' ) );
+		//add_filter( 'as3cf_aws_s3_url_domain', array( $this, 'minio_s3_url_domain' ), 10, 6 );
+		//add_filter( 'as3cf_upload_acl', array( $this, 'minio_upload_acl' ), 10, 1 );
+		//add_filter( 'as3cf_upload_acl_sizes', array( $this, 'minio_upload_acl' ), 10, 1 );
+		//add_filter( 'as3cf_aws_s3_console_url', array( $this, 'minio_s3_console_url' ) );
+		//add_filter( 'as3cf_aws_s3_console_url_prefix_param', array( $this, 'minio_s3_console_url_prefix_param' ) );
+
+		/*
 		 * Storage related filters.
 		 */
-
 		//add_filter( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
 		//add_filter( 'as3cf_pre_update_attachment_metadata', array( $this, 'pre_update_attachment_metadata' ), 10, 4 );
 		//add_filter( 'as3cf_pre_upload_attachment', array( $this, 'pre_upload_attachment' ), 10, 3 );
@@ -89,7 +100,6 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 *
 		 * https://deliciousbrains.com/wp-offload-media/
 		 */
-
 		//add_filter( 'as3cfpro_media_actions_capability', array( $this, 'media_actions_capability' ), 10, 1 );
 		//add_filter( 'as3cfpro_calculate_batch_time', array( $this, 'calculate_batch_time' ) );
 		//add_filter( 'as3cfpro_calculate_batch_limit', array( $this, 'calculate_batch_limit' ) );
@@ -109,7 +119,6 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 *
 		 * https://deliciousbrains.com/wp-offload-media/doc/assets-pull-addon/
 		 */
-
 		//add_filter( 'as3cf_assets_pull_test_endpoint_sslverify', array( $this, 'assets_pull_test_endpoint_sslverify' ), 10, 2 );
 	}
 
@@ -185,6 +194,133 @@ class Amazon_S3_and_CloudFront_Tweaks {
 
 		return $args;
 	}
+
+	/*
+	 * >>> MinIO Examples Start
+	 */
+
+	/**
+	 * This filter allows you to adjust the arguments passed to the provider's service specific SDK client.
+	 *
+	 * The service specific SDK client is created from the initial provider SDK client, and inherits most of its config.
+	 * The service specific SDK client is re-created more often than the provider SDK client for specific scenarios, so if possible
+	 * set overrides in the provider client rather than service client for a slight improvement in performance.
+	 *
+	 * @see     https://docs.aws.amazon.com/aws-sdk-php/v3/api/class-Aws.S3.S3Client.html#___construct
+	 * @see     https://docs.min.io/docs/how-to-use-aws-sdk-for-php-with-minio-server.html
+	 *
+	 * @handles `as3cf_aws_s3_client_args`
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 *
+	 * Note: A good place for changing 'signature_version', 'use_path_style_endpoint' etc. for specific bucket/object actions.
+	 */
+	function minio_s3_client_args( $args ) {
+		// Example changes endpoint to connect to a local MinIO server configured to use port 54321 (the default MinIO port is 9000).
+		$args['endpoint'] = 'http://127.0.0.1:54321';
+
+		// Example forces SDK to use endpoint URLs with bucket name in path rather than domain name as required by MinIO.
+		$args['use_path_style_endpoint'] = true;
+
+		return $args;
+	}
+
+	/**
+	 * This filter allows you to add or remove regions for the provider.
+	 *
+	 * @handles `as3cf_aws_get_regions`
+	 *
+	 * @param array $regions
+	 *
+	 * @return array
+	 *
+	 * MinIO regions, like Immortals in Highlander, there can be only one.
+	 */
+	function minio_get_regions( $regions ) {
+		$regions = array(
+			'us-east-1' => 'Default',
+		);
+
+		return $regions;
+	}
+
+	/**
+	 * This filter allows you to change the URL used for serving the files.
+	 *
+	 * @handles `as3cf_aws_s3_url_domain`
+	 *
+	 * @param string $domain
+	 * @param string $bucket
+	 * @param string $region
+	 * @param int    $expires
+	 * @param array  $args    Allows you to specify custom URL settings
+	 * @param bool   $preview When generating the URL preview sanitize certain output
+	 *
+	 * @return string
+	 */
+	function minio_s3_url_domain( $domain, $bucket, $region, $expires, $args, $preview ) {
+		// MinIO doesn't need a region prefix, and always puts the bucket in the path.
+		return '127.0.0.1:54321/' . $bucket;
+	}
+
+	/**
+	 * Normally these filters allow you to change the default Access Control List (ACL)
+	 * permission for an original file and its thumbnails when offloaded to bucket.
+	 * However, MinIO doesn't do ACLs and defaults to private. So while this filter handler
+	 * doesn't change anything in the bucket, it does tell WP Offload Media it needs sign URLs.
+	 * In this handler we're just accepting the ACL and not bothering with any other params
+	 * from the two filters.
+	 *
+	 * @handles `as3cf_upload_acl`
+	 * @handles `as3cf_upload_acl_sizes`
+	 *
+	 * @param string $acl defaults to 'public-read'
+	 *
+	 * @return string
+	 *
+	 * Note: Only enable this if you are happy with signed URLs and haven't changed the bucket's policy to "Read Only" or similar.
+	 */
+	function minio_upload_acl( $acl ) {
+		return 'private';
+	}
+
+	/**
+	 * This filter allows you to change the base URL used to take you to the provider's console from WP Offload Media's settings.
+	 *
+	 * @handles `as3cf_aws_s3_console_url`
+	 *
+	 * @param string $url
+	 *
+	 * @return string
+	 */
+	function minio_s3_console_url( $url ) {
+		return 'http://127.0.0.1:54321/minio/';
+	}
+
+	/**
+	 * The "prefix param" denotes what should be in the console URL before the path prefix value.
+	 *
+	 * For example, the default for AWS/S3 is "?prefix=".
+	 *
+	 * The prefix is usually added to the console URL just after the bucket name.
+	 *
+	 * @handles `as3cf_aws_s3_console_url_prefix_param`
+	 *
+	 * @param $param
+	 *
+	 * @return string
+	 *
+	 * MinIO just appends the path prefix directly after the bucket name.
+	 */
+	function minio_s3_console_url_prefix_param( $param ) {
+		return '/';
+	}
+
+	/*
+	 * <<< MinIO Examples End
+	 */
 
 	/**
 	 * This filter allows your limit specific mime types of files that
@@ -618,7 +754,6 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	// WP Offload Media (Pro)
 	//
 
-
 	/**
 	 * This filter allows you to control the default capability for using
 	 * the on-demand bucket media actions.
@@ -818,7 +953,6 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	//
 	// Assets Pull Addon Examples
 	//
-
 
 	/**
 	 * By default HTTPS certificates are verified during Assets Pull's domain check,
