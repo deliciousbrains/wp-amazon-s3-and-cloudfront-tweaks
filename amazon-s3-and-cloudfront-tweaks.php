@@ -4,7 +4,7 @@ Plugin Name: WP Offload Media Tweaks
 Plugin URI: http://github.com/deliciousbrains/wp-amazon-s3-and-cloudfront-tweaks
 Description: Examples of using WP Offload Media's filters
 Author: Delicious Brains
-Version: 0.3.0
+Version: 0.3.1
 Author URI: http://deliciousbrains.com
 */
 
@@ -79,6 +79,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_get_object_version_string', array( $this, 'get_object_version_string' ), 10, 1 );
 		//add_filter( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
 		//add_filter( 'as3cf_upload_acl_sizes', array( $this, 'upload_acl_sizes' ), 10, 4 );
+		//add_filter( 'as3cf_gzip_mime_types', array( $this, 'gzip_mime_types' ), 10, 2 );
 		//add_filter( 'as3cf_object_meta', array( $this, 'object_meta' ), 10, 4 );
 		//add_filter( 'as3cf_attachment_file_paths', array( $this, 'attachment_file_paths' ), 10, 3 );
 		//add_filter( 'as3cf_upload_attachment_local_files_to_remove', array( $this, 'upload_attachment_local_files_to_remove' ), 10, 3 );
@@ -484,6 +485,29 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		}
 
 		return $acl;
+	}
+
+	/**
+	 * This filter allows you to change which file types are gzipped during offload.
+	 *
+	 * @handles `as3cf_gzip_mime_types`
+	 *
+	 * @param array $mime_types
+	 * @param bool  $media_library
+	 *
+	 * @return array
+	 */
+	function gzip_mime_types( $mime_types, $media_library ) {
+		// Don't GZip any offloads, keep them pristine.
+		$mime_types = array();
+
+		// Add SVG (already is by default).
+		//$mime_types['svg'] = 'image/svg+xml';
+
+		// Remove SVG.
+		//unset( $mime_types['svg'] );
+
+		return $mime_types;
 	}
 
 	/**
