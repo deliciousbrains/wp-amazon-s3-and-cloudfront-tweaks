@@ -6,6 +6,7 @@ Description: Examples of using WP Offload Media's filters
 Author: Delicious Brains
 Version: 0.4.0
 Author URI: http://deliciousbrains.com
+Network: True
 */
 
 // Copyright (c) 2015 Delicious Brains. All rights reserved.
