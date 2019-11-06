@@ -35,6 +35,15 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 * https://wordpress.org/plugins/amazon-s3-and-cloudfront/
 		 */
 
+		/**
+		 * Performance tuning for upgrade to custom tables in WP Offload Media 2.3.
+		 *
+		 * This upgrade is called `as3cf_items_table`.
+		 */
+		//add_filter( 'as3cf_update_as3cf_items_table_interval', array( $this, 'update_as3cf_items_table_interval' ) );
+		//add_filter( 'as3cf_update_as3cf_items_table_batch_size', array( $this, 'update_as3cf_items_table_batch_size' ) );
+		//add_filter( 'as3cf_update_as3cf_items_table_time_limit', array( $this, 'update_as3cf_items_table_time_limit' ) );
+
 		/*
 		 * Settings related filters.
 		 *
@@ -116,6 +125,48 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 * https://deliciousbrains.com/wp-offload-media/doc/assets-pull-addon/
 		 */
 		//add_filter( 'as3cf_assets_pull_test_endpoint_sslverify', array( $this, 'assets_pull_test_endpoint_sslverify' ), 10, 2 );
+	}
+
+	/**
+	 * Change the interval between upgrade batch runs. Default: 2 (mins).
+	 *
+	 * @handles `as3cf_update_as3cf_items_table_interval`
+	 *
+	 * @param int $mins
+	 *
+	 * @return int
+	 */
+	function update_as3cf_items_table_interval( $mins ) {
+		// For faster processing, set to smallest cron interval, 1 minute.
+		return 1;
+	}
+
+	/**
+	 * Change the max number of attachments to be processed per batch run. Default: 500.
+	 *
+	 * @handles `as3cf_update_as3cf_items_table_batch_size`
+	 *
+	 * @param int $batch_size
+	 *
+	 * @return int
+	 */
+	function update_as3cf_items_table_batch_size( $batch_size ) {
+		// For faster processing, process up to 1,000 items per batch run.
+		return 1000;
+	}
+
+	/**
+	 * Change the max time each batch run can last. Default: 20 (seconds)
+	 *
+	 * @handles `as3cf_update_as3cf_items_table_time_limit`
+	 *
+	 * @param int $seconds
+	 *
+	 * @return int
+	 */
+	function update_as3cf_items_table_time_limit( $seconds ) {
+		// Give each batch a few more seconds to run.
+		return 25;
 	}
 
 	/**
