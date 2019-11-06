@@ -40,7 +40,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 *
 		 *  Each setting has a filter, e.g, object-prefix ("Path" prefix in bucket) would be the following.
 		 */
-		//add_action( 'as3cf_setting_object-prefix', array( $this, 'get_setting_object_prefix' ), 10, 1 );
+		//add_filter( 'as3cf_setting_object-prefix', array( $this, 'get_setting_object_prefix' ), 10, 1 );
 		//add_filter( 'as3cf_show_deprecated_domain_setting', array( $this, 'show_deprecated_domain_setting' ) );
 
 		/*
