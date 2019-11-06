@@ -344,17 +344,17 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @handles `as3cf_pre_update_attachment_metadata`
 	 *
-	 * @param bool  $abort
-	 * @param array $data    attachment metadata
-	 * @param int   $post_id attachment ID
-	 * @param mixed $old_provider_object
+	 * @param bool                                                           $abort
+	 * @param array                                                          $data    attachment metadata
+	 * @param int                                                            $post_id attachment ID
+	 * @param DeliciousBrains\WP_Offload_Media\Items\Media_Library_Item|null $old_as3cf_item
 	 *
 	 * @return mixed
 	 *
 	 * Note: Filter fires when attachment uploaded to Media Library, edited or metadata otherwise
 	 * updated by some process.
 	 */
-	function pre_update_attachment_metadata( $abort, $data, $post_id, $old_provider_object ) {
+	function pre_update_attachment_metadata( $abort, $data, $post_id, $old_as3cf_item ) {
 		// Example stops movie files from being offloaded when added to library or metadata updated.
 		$file      = get_post_meta( $post_id, '_wp_attached_file', true );
 		$extension = is_string( $file ) ? pathinfo( $file, PATHINFO_EXTENSION ) : false;
@@ -371,15 +371,15 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * @handles `as3cf_pre_upload_attachment`
 	 *
 	 * @param bool  $abort
-	 * @param int   $post_id attachment ID
-	 * @param array $data    attachment metadata
+	 * @param int   $post_id  attachment ID
+	 * @param array $metadata attachment metadata
 	 *
 	 * @return mixed
 	 *
 	 * Note: Filter fires when attachment is about to be offloaded for any reason,
 	 * including using Pro's bulk offload tools.
 	 */
-	function pre_upload_attachment( $abort, $post_id, $data ) {
+	function pre_upload_attachment( $abort, $post_id, $metadata ) {
 		// Example stops movie files from being offloaded.
 		$file      = get_post_meta( $post_id, '_wp_attached_file', true );
 		$extension = is_string( $file ) ? pathinfo( $file, PATHINFO_EXTENSION ) : false;
@@ -466,14 +466,14 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @handles `as3cf_upload_acl_sizes`
 	 *
-	 * @param string $acl defaults to 'public-read'
+	 * @param string $acl      defaults to 'public-read'
 	 * @param string $size
 	 * @param int    $post_id
-	 * @param array  $data
+	 * @param array  $metadata attachment metadata
 	 *
 	 * @return string
 	 */
-	function upload_acl_sizes( $acl, $size, $post_id, $data ) {
+	function upload_acl_sizes( $acl, $size, $post_id, $metadata ) {
 		// Make only thumbnail and medium image sizes private in bucket.
 		if ( 'medium' === $size || 'thumbnail' === $size ) {
 			return 'private';
@@ -521,9 +521,11 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * Note: Only fires for the "original" media file, image sizes etc. will be placed next to original in bucket.
 	 */
 	function object_meta( $args, $post_id, $image_size, $copy ) {
+		$extension = pathinfo( $args['Key'], PATHINFO_EXTENSION );
+
 		// Example places (potentially large) movie files in a different bucket than configured.
 		// Also changes path prefix to match that used in CDN behavior's "Path Prefix" for this second origin.
-		$extension = pathinfo( $args['Key'], PATHINFO_EXTENSION );
+		/*
 		if ( in_array( $extension, array( 'mp4', 'mov' ) ) ) {
 			// Change bucket.
 			$args['Bucket'] = 'my-cheaper-infrequent-access-bucket';
@@ -532,6 +534,15 @@ class Amazon_S3_and_CloudFront_Tweaks {
 			$filename    = pathinfo( $args['Key'], PATHINFO_FILENAME ) . '.' . $extension;
 			$args['Key'] = 'movies/' . $filename;
 		}
+		*/
+
+		// Example sets "Content-Disposition" header to "attachment" so that browsers download rather than play audio files.
+		/*
+		if ( in_array( $extension, array( 'mp3', 'wav' ) ) ) {
+			// Note, S3 format trims "-" from header names.
+			$args['ContentDisposition'] = 'attachment';
+		}
+		*/
 
 		return $args;
 	}
@@ -544,11 +555,11 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @param array $paths
 	 * @param int   $attachment_id
-	 * @param array $meta
+	 * @param array $metadata attachment metadata
 	 *
 	 * @return array
 	 */
-	function attachment_file_paths( $paths, $attachment_id, $meta ) {
+	function attachment_file_paths( $paths, $attachment_id, $metadata ) {
 		// Example adds some backup files created for original and all thumbnails by some plugin, if they exist.
 		foreach ( $paths as $file ) {
 			$pathinfo   = pathinfo( $file );
@@ -665,18 +676,18 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @handles `as3cf_get_attachment_url`
 	 *
-	 * @param string $url
-	 * @param array  $provider_object
-	 * @param int    $post_id
-	 * @param int    $expires
+	 * @param string                                                    $url
+	 * @param DeliciousBrains\WP_Offload_Media\Items\Media_Library_Item $as3cf_item
+	 * @param int                                                       $post_id
+	 * @param int                                                       $expires
 	 *
 	 * @return string
 	 *
 	 * Note: Runs earlier than `as3cf_wp_get_attachment_url`
 	 */
-	function get_attachment_url( $url, $provider_object, $post_id, $expires ) {
+	function get_attachment_url( $url, $as3cf_item, $post_id, $expires ) {
 		// Example changes domain to another CDN configured for dedicated movies bucket.
-		if ( 'my-cheaper-infrequent-access-bucket' === $provider_object['bucket'] ) {
+		if ( 'my-cheaper-infrequent-access-bucket' === $as3cf_item->bucket() ) {
 			// Get current hostname in URL.
 			$hostname = parse_url( $url, PHP_URL_HOST );
 
@@ -737,7 +748,9 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	/**
 	 * This filter allows you to adjust the expires time for private files.
 	 *
-	 * @param int $expires
+	 * @handles `as3cf_expires`
+	 *
+	 * @param int $expires Seconds, default 900 (15 mins)
 	 *
 	 * @return int
 	 */
