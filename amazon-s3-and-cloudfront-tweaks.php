@@ -126,6 +126,9 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 * https://deliciousbrains.com/wp-offload-media/doc/assets-pull-addon/
 		 */
 		//add_filter( 'as3cf_assets_pull_test_endpoint_sslverify', array( $this, 'assets_pull_test_endpoint_sslverify' ), 10, 2 );
+
+		// If you're really brave, you can have Assets Pull also rewrite enqueued assets within the WordPress admin dashboard.
+		//add_filter( 'as3cf_assets_enable_wp_admin_rewrite', '__return_true' );
 	}
 
 	/**
