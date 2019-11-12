@@ -4,8 +4,9 @@ Plugin Name: WP Offload Media Tweaks
 Plugin URI: http://github.com/deliciousbrains/wp-amazon-s3-and-cloudfront-tweaks
 Description: Examples of using WP Offload Media's filters
 Author: Delicious Brains
-Version: 0.3.1
+Version: 0.4.0
 Author URI: http://deliciousbrains.com
+Network: True
 */
 
 // Copyright (c) 2015 Delicious Brains. All rights reserved.
@@ -35,12 +36,21 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 * https://wordpress.org/plugins/amazon-s3-and-cloudfront/
 		 */
 
+		/**
+		 * Performance tuning for upgrade to custom tables in WP Offload Media 2.3.
+		 *
+		 * This upgrade is called `as3cf_items_table`.
+		 */
+		//add_filter( 'as3cf_update_as3cf_items_table_interval', array( $this, 'update_as3cf_items_table_interval' ) );
+		//add_filter( 'as3cf_update_as3cf_items_table_batch_size', array( $this, 'update_as3cf_items_table_batch_size' ) );
+		//add_filter( 'as3cf_update_as3cf_items_table_time_limit', array( $this, 'update_as3cf_items_table_time_limit' ) );
+
 		/*
 		 * Settings related filters.
 		 *
 		 *  Each setting has a filter, e.g, object-prefix ("Path" prefix in bucket) would be the following.
 		 */
-		//add_action( 'as3cf_setting_object-prefix', array( $this, 'get_setting_object_prefix' ), 10, 1 );
+		//add_filter( 'as3cf_setting_object-prefix', array( $this, 'get_setting_object_prefix' ), 10, 1 );
 		//add_filter( 'as3cf_show_deprecated_domain_setting', array( $this, 'show_deprecated_domain_setting' ) );
 
 		/*
@@ -102,16 +112,11 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 * https://deliciousbrains.com/wp-offload-media/
 		 */
 		//add_filter( 'as3cfpro_media_actions_capability', array( $this, 'media_actions_capability' ), 10, 1 );
-		//add_filter( 'as3cfpro_calculate_batch_time', array( $this, 'calculate_batch_time' ) );
-		//add_filter( 'as3cfpro_calculate_batch_limit', array( $this, 'calculate_batch_limit' ) );
-		//add_filter( 'as3cfpro_uploader_batch_time', array( $this, 'uploader_batch_time' ) );
-		//add_filter( 'as3cfpro_uploader_batch_limit', array( $this, 'uploader_batch_limit' ) );
-		//add_filter( 'as3cfpro_downloader_batch_time', array( $this, 'downloader_batch_time' ) );
-		//add_filter( 'as3cfpro_downloader_batch_limit', array( $this, 'downloader_batch_limit' ) );
-		//add_filter( 'as3cfpro_download_and_remover_batch_time', array( $this, 'download_and_remover_batch_time' ) );
-		//add_filter( 'as3cfpro_download_and_remover_batch_limit', array( $this, 'download_and_remover_batch_limit' ) );
 		//add_filter( 'as3cf_seconds_between_batches', array( $this, 'seconds_between_batches' ) );
 		//add_filter( 'as3cf_default_time_limit', array( $this, 'default_time_limit' ) );
+		//add_filter( 'as3cf_tool_uploader_batch_size', array( $this, 'tool_uploader_batch_size' ) );
+		//add_filter( 'as3cf_tool_downloader_batch_size', array( $this, 'tool_downloader_batch_size' ) );
+		//add_filter( 'as3cf_tool_downloader_and_remover_batch_size', array( $this, 'tool_downloader_and_remover_batch_size' ) );
 		//add_filter( 'as3cf_tool_copy_buckets_batch_size', array( $this, 'tool_copy_buckets_batch_size' ) );
 		//add_filter( 'as3cf_tool_remove_local_files_batch_size', array( $this, 'tool_remove_local_files_batch_size' ) );
 
@@ -121,6 +126,51 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 * https://deliciousbrains.com/wp-offload-media/doc/assets-pull-addon/
 		 */
 		//add_filter( 'as3cf_assets_pull_test_endpoint_sslverify', array( $this, 'assets_pull_test_endpoint_sslverify' ), 10, 2 );
+
+		// If you're really brave, you can have Assets Pull also rewrite enqueued assets within the WordPress admin dashboard.
+		//add_filter( 'as3cf_assets_enable_wp_admin_rewrite', '__return_true' );
+	}
+
+	/**
+	 * Change the interval between upgrade batch runs. Default: 2 (mins).
+	 *
+	 * @handles `as3cf_update_as3cf_items_table_interval`
+	 *
+	 * @param int $mins
+	 *
+	 * @return int
+	 */
+	function update_as3cf_items_table_interval( $mins ) {
+		// For faster processing, set to smallest cron interval, 1 minute.
+		return 1;
+	}
+
+	/**
+	 * Change the max number of attachments to be processed per batch run. Default: 500.
+	 *
+	 * @handles `as3cf_update_as3cf_items_table_batch_size`
+	 *
+	 * @param int $batch_size
+	 *
+	 * @return int
+	 */
+	function update_as3cf_items_table_batch_size( $batch_size ) {
+		// For faster processing, process up to 1,000 items per batch run.
+		return 1000;
+	}
+
+	/**
+	 * Change the max time each batch run can last. Default: 20 (seconds)
+	 *
+	 * @handles `as3cf_update_as3cf_items_table_time_limit`
+	 *
+	 * @param int $seconds
+	 *
+	 * @return int
+	 */
+	function update_as3cf_items_table_time_limit( $seconds ) {
+		// Give each batch a few more seconds to run.
+		return 25;
 	}
 
 	/**
@@ -349,17 +399,17 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @handles `as3cf_pre_update_attachment_metadata`
 	 *
-	 * @param bool  $abort
-	 * @param array $data    attachment metadata
-	 * @param int   $post_id attachment ID
-	 * @param mixed $old_provider_object
+	 * @param bool                                                           $abort
+	 * @param array                                                          $data    attachment metadata
+	 * @param int                                                            $post_id attachment ID
+	 * @param DeliciousBrains\WP_Offload_Media\Items\Media_Library_Item|null $old_as3cf_item
 	 *
 	 * @return mixed
 	 *
 	 * Note: Filter fires when attachment uploaded to Media Library, edited or metadata otherwise
 	 * updated by some process.
 	 */
-	function pre_update_attachment_metadata( $abort, $data, $post_id, $old_provider_object ) {
+	function pre_update_attachment_metadata( $abort, $data, $post_id, $old_as3cf_item ) {
 		// Example stops movie files from being offloaded when added to library or metadata updated.
 		$file      = get_post_meta( $post_id, '_wp_attached_file', true );
 		$extension = is_string( $file ) ? pathinfo( $file, PATHINFO_EXTENSION ) : false;
@@ -376,15 +426,15 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * @handles `as3cf_pre_upload_attachment`
 	 *
 	 * @param bool  $abort
-	 * @param int   $post_id attachment ID
-	 * @param array $data    attachment metadata
+	 * @param int   $post_id  attachment ID
+	 * @param array $metadata attachment metadata
 	 *
 	 * @return mixed
 	 *
 	 * Note: Filter fires when attachment is about to be offloaded for any reason,
 	 * including using Pro's bulk offload tools.
 	 */
-	function pre_upload_attachment( $abort, $post_id, $data ) {
+	function pre_upload_attachment( $abort, $post_id, $metadata ) {
 		// Example stops movie files from being offloaded.
 		$file      = get_post_meta( $post_id, '_wp_attached_file', true );
 		$extension = is_string( $file ) ? pathinfo( $file, PATHINFO_EXTENSION ) : false;
@@ -471,14 +521,14 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @handles `as3cf_upload_acl_sizes`
 	 *
-	 * @param string $acl defaults to 'public-read'
+	 * @param string $acl      defaults to 'public-read'
 	 * @param string $size
 	 * @param int    $post_id
-	 * @param array  $data
+	 * @param array  $metadata attachment metadata
 	 *
 	 * @return string
 	 */
-	function upload_acl_sizes( $acl, $size, $post_id, $data ) {
+	function upload_acl_sizes( $acl, $size, $post_id, $metadata ) {
 		// Make only thumbnail and medium image sizes private in bucket.
 		if ( 'medium' === $size || 'thumbnail' === $size ) {
 			return 'private';
@@ -526,9 +576,11 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * Note: Only fires for the "original" media file, image sizes etc. will be placed next to original in bucket.
 	 */
 	function object_meta( $args, $post_id, $image_size, $copy ) {
+		$extension = pathinfo( $args['Key'], PATHINFO_EXTENSION );
+
 		// Example places (potentially large) movie files in a different bucket than configured.
 		// Also changes path prefix to match that used in CDN behavior's "Path Prefix" for this second origin.
-		$extension = pathinfo( $args['Key'], PATHINFO_EXTENSION );
+		/*
 		if ( in_array( $extension, array( 'mp4', 'mov' ) ) ) {
 			// Change bucket.
 			$args['Bucket'] = 'my-cheaper-infrequent-access-bucket';
@@ -537,6 +589,15 @@ class Amazon_S3_and_CloudFront_Tweaks {
 			$filename    = pathinfo( $args['Key'], PATHINFO_FILENAME ) . '.' . $extension;
 			$args['Key'] = 'movies/' . $filename;
 		}
+		*/
+
+		// Example sets "Content-Disposition" header to "attachment" so that browsers download rather than play audio files.
+		/*
+		if ( in_array( $extension, array( 'mp3', 'wav' ) ) ) {
+			// Note, S3 format trims "-" from header names.
+			$args['ContentDisposition'] = 'attachment';
+		}
+		*/
 
 		return $args;
 	}
@@ -549,11 +610,11 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @param array $paths
 	 * @param int   $attachment_id
-	 * @param array $meta
+	 * @param array $metadata attachment metadata
 	 *
 	 * @return array
 	 */
-	function attachment_file_paths( $paths, $attachment_id, $meta ) {
+	function attachment_file_paths( $paths, $attachment_id, $metadata ) {
 		// Example adds some backup files created for original and all thumbnails by some plugin, if they exist.
 		foreach ( $paths as $file ) {
 			$pathinfo   = pathinfo( $file );
@@ -670,18 +731,18 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @handles `as3cf_get_attachment_url`
 	 *
-	 * @param string $url
-	 * @param array  $provider_object
-	 * @param int    $post_id
-	 * @param int    $expires
+	 * @param string                                                    $url
+	 * @param DeliciousBrains\WP_Offload_Media\Items\Media_Library_Item $as3cf_item
+	 * @param int                                                       $post_id
+	 * @param int                                                       $expires
 	 *
 	 * @return string
 	 *
 	 * Note: Runs earlier than `as3cf_wp_get_attachment_url`
 	 */
-	function get_attachment_url( $url, $provider_object, $post_id, $expires ) {
+	function get_attachment_url( $url, $as3cf_item, $post_id, $expires ) {
 		// Example changes domain to another CDN configured for dedicated movies bucket.
-		if ( 'my-cheaper-infrequent-access-bucket' === $provider_object['bucket'] ) {
+		if ( 'my-cheaper-infrequent-access-bucket' === $as3cf_item->bucket() ) {
 			// Get current hostname in URL.
 			$hostname = parse_url( $url, PHP_URL_HOST );
 
@@ -742,7 +803,9 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	/**
 	 * This filter allows you to adjust the expires time for private files.
 	 *
-	 * @param int $expires
+	 * @handles `as3cf_expires`
+	 *
+	 * @param int $expires Seconds, default 900 (15 mins)
 	 *
 	 * @return int
 	 */
@@ -802,118 +865,6 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/**
-	 * Initialization batch time in seconds (Default 5) for modal tools.
-	 *
-	 * @handles `as3cfpro_calculate_batch_time`
-	 *
-	 * @param int $value
-	 *
-	 * @return int
-	 */
-	function calculate_batch_time( $value ) {
-		// Example increases the number of seconds before calculation phase finishes up current batch and gives site a bit of time to breathe.
-		return 25;
-	}
-
-	/**
-	 * Initialization batch size in number of attachments (Default 100) for modal tools.
-	 *
-	 * @handles `as3cfpro_calculate_batch_limit`
-	 *
-	 * @param int $value
-	 *
-	 * @return int
-	 */
-	function calculate_batch_limit( $value ) {
-		// Example increases the size of each calculation batch that is completed before checking batch time limit and potentially processing another batch.
-		return 200;
-	}
-
-	/**
-	 * Uploader modal's batch time in seconds (Default 10).
-	 *
-	 * @handles `as3cfpro_uploader_batch_time`
-	 *
-	 * @param int $value
-	 *
-	 * @return int
-	 */
-	function uploader_batch_time( $value ) {
-		// Example increases the maximum time allowed for a batch of uploads to be completed before site is given a moment to breathe.
-		return 25;
-	}
-
-	/**
-	 * Uploader modal's batch size in number of attachments (Default 10).
-	 *
-	 * @handles `as3cfpro_uploader_batch_limit`
-	 *
-	 * @param int $value
-	 *
-	 * @return int
-	 */
-	function uploader_batch_limit( $value ) {
-		// Example increases the maximum number of attachments to attempt to upload within batch time limit before site given a moment to breathe.
-		return 25;
-	}
-
-	/**
-	 * Downloader modal's batch time in seconds (Default 10).
-	 *
-	 * @handles `as3cfpro_downloader_batch_time`
-	 *
-	 * @param int $value
-	 *
-	 * @return int
-	 */
-	function downloader_batch_time( $value ) {
-		// Example increases the maximum time allowed for a batch of downloads to be completed before site is given a moment to breathe.
-		return 25;
-	}
-
-	/**
-	 * Downloader modal's batch size in number of attachments (Default 10).
-	 *
-	 * @handles `as3cfpro_downloader_batch_limit`
-	 *
-	 * @param int $value
-	 *
-	 * @return int
-	 */
-	function downloader_batch_limit( $value ) {
-		// Example increases the maximum number of attachments to attempt to download within batch time limit before site given a moment to breathe.
-		return 25;
-	}
-
-	/**
-	 * Download and Remove modal's batch time in seconds (Default 10).
-	 *
-	 * @handles `as3cfpro_download_and_remover_batch_time`
-	 *
-	 * @param int $value
-	 *
-	 * @return int
-	 */
-	function download_and_remover_batch_time( $value ) {
-		// Example increases the maximum time allowed for a batch of download and removes to be completed before site is given a moment to breathe.
-		return 25;
-	}
-
-	/**
-	 * Download and Remove modal's batch size in number of attachments (Default 10).
-	 *
-	 * @handles `as3cfpro_download_and_remover_batch_limit`
-	 *
-	 * @param int $value
-	 *
-	 * @return int
-	 */
-	function download_and_remover_batch_limit( $value ) {
-		// Example increases the maximum number of attachments to attempt to download and remove within batch time limit before site given a moment to breathe.
-		return 25;
-	}
-
-	/**
 	 * Number of seconds to sleep between background tool batches. Defaults to 0 seconds, minimum 0.
 	 *
 	 * @handles `as3cf_seconds_between_batches`
@@ -937,12 +888,60 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * @return int
 	 */
 	function default_time_limit( $value ) {
-		// Example increases to limit to 25 seconds.
+		// Example increases the limit to 25 seconds.
 		return 25;
 	}
 
 	/**
-	 * Copy between bucket's number of attachments to analyse for copy per batch (Default 100).
+	 * Background offload to bucket's number of attachments to analyse per batch (Default 100).
+	 *
+	 * @handles `as3cf_tool_uploader_batch_size`
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 *
+	 * Note: No matter how many attachments are determined to need processing in batch, processes no more than 10 attachments at a time with a time limit check after each chunk is processed.
+	 */
+	function tool_uploader_batch_size( $value ) {
+		// Example decreases number of attachments in batch to analyse.
+		return 50;
+	}
+
+	/**
+	 * Background download from bucket's number of attachments to analyse per batch (Default 100).
+	 *
+	 * @handles `as3cf_tool_downloader_batch_size`
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 *
+	 * Note: No matter how many attachments are determined to need processing in batch, processes no more than 10 attachments at a time with a time limit check after each chunk is processed.
+	 */
+	function tool_downloader_batch_size( $value ) {
+		// Example decreases number of attachments in batch to analyse.
+		return 50;
+	}
+
+	/**
+	 * Background download and remove from bucket's number of attachments to analyse per batch (Default 100).
+	 *
+	 * @handles `as3cf_tool_downloader_and_remover_batch_size`
+	 *
+	 * @param int $value
+	 *
+	 * @return int
+	 *
+	 * Note: No matter how many attachments are determined to need processing in batch, processes no more than 10 attachments at a time with a time limit check after each chunk is processed.
+	 */
+	function tool_downloader_and_remover_batch_size( $value ) {
+		// Example decreases number of attachments in batch to analyse.
+		return 50;
+	}
+
+	/**
+	 * Copy between bucket's number of attachments to analyse per batch (Default 100).
 	 *
 	 * @handles `as3cf_tool_copy_buckets_batch_size`
 	 *
@@ -950,15 +949,15 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return int
 	 *
-	 * Note: No matter how many attachments are determined to need copying in batch, actual copy will process no more than 10 attachments at a time with a time limit check after each chunk is processed.
+	 * Note: No matter how many attachments are determined to need processing in batch, processes no more than 10 attachments at a time with a time limit check after each chunk is processed.
 	 */
 	function tool_copy_buckets_batch_size( $value ) {
-		// Example decreases number of attachments in batch to analyse for copy to bucket.
+		// Example decreases number of attachments in batch to analyse.
 		return 50;
 	}
 
 	/**
-	 * Remove local files' number of attachments to analyse for removal per batch (Default 100).
+	 * Remove local files' number of attachments to analyse per batch (Default 100).
 	 *
 	 * @handles `as3cf_tool_remove_local_files_batch_size`
 	 *
@@ -966,10 +965,10 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return int
 	 *
-	 * Note: No matter how many attachments are determined to need removing from local in batch, actual removal will process no more than 10 attachments at a time with a time limit check after each chunk is processed.
+	 * Note: No matter how many attachments are determined to need processing in batch, processes no more than 10 attachments at a time with a time limit check after each chunk is processed.
 	 */
 	function tool_remove_local_files_batch_size( $value ) {
-		// Example decreases number of attachments in batch to analyse for removal from local.
+		// Example decreases number of attachments in batch to analyse.
 		return 50;
 	}
 
