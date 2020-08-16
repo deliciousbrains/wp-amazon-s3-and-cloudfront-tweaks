@@ -73,7 +73,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		 */
 		//add_filter( 'as3cf_aws_s3_client_args', array( $this, 'minio_s3_client_args' ) );
 		//add_filter( 'as3cf_aws_get_regions', array( $this, 'minio_get_regions' ) );
-		//add_filter( 'as3cf_aws_s3_url_domain', array( $this, 'minio_s3_url_domain' ), 10, 6 );
+		//add_filter( 'as3cf_aws_s3_url_domain', array( $this, 'minio_s3_url_domain' ), 10, 5 );
 		//add_filter( 'as3cf_upload_acl', array( $this, 'minio_upload_acl' ), 10, 1 );
 		//add_filter( 'as3cf_upload_acl_sizes', array( $this, 'minio_upload_acl' ), 10, 1 );
 		//add_filter( 'as3cf_aws_s3_console_url', array( $this, 'minio_s3_console_url' ) );
@@ -311,7 +311,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return string
 	 */
-	function minio_s3_url_domain( $domain, $bucket, $region, $expires, $args, $preview ) {
+	function minio_s3_url_domain( $domain, $bucket, $region, $expires, $args ) {
 		// MinIO doesn't need a region prefix, and always puts the bucket in the path.
 		return '127.0.0.1:54321/' . $bucket;
 	}
