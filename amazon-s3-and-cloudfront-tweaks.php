@@ -316,7 +316,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * @param string $bucket
 	 * @param string $region
 	 * @param int    $expires
-	 * @param array  $args Allows you to specify custom URL settings
+	 * @param array  $args    Allows you to specify custom URL settings
 	 *
 	 * @return string
 	 */
