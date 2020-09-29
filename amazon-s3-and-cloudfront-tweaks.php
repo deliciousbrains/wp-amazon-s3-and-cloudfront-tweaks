@@ -4,7 +4,7 @@ Plugin Name: WP Offload Media Tweaks
 Plugin URI: http://github.com/deliciousbrains/wp-amazon-s3-and-cloudfront-tweaks
 Description: Examples of using WP Offload Media's filters
 Author: Delicious Brains
-Version: 0.4.0
+Version: 0.4.1
 Author URI: http://deliciousbrains.com
 Network: True
 */
@@ -78,6 +78,16 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_upload_acl_sizes', array( $this, 'minio_upload_acl' ), 10, 1 );
 		//add_filter( 'as3cf_aws_s3_console_url', array( $this, 'minio_s3_console_url' ) );
 		//add_filter( 'as3cf_aws_s3_console_url_prefix_param', array( $this, 'minio_s3_console_url_prefix_param' ) );
+
+		/*
+		 * Custom S3 API Example: Wasabi
+		 * @see https://wasabi.com/
+		 */
+		//add_filter( 'as3cf_aws_s3_client_args', array( $this, 'wasabi_s3_client_args' ) );
+		//add_filter( 'as3cf_aws_get_regions', array( $this, 'wasabi_get_regions' ) );
+		//add_filter( 'as3cf_aws_s3_bucket_in_path', '__return_true' );
+		//add_filter( 'as3cf_aws_s3_domain', array( $this, 'wasabi_domain' ) );
+		//add_filter( 'as3cf_aws_s3_console_url', array( $this, 'wasabi_s3_console_url' ) );
 
 		/*
 		 * Storage related filters.
@@ -370,6 +380,88 @@ class Amazon_S3_and_CloudFront_Tweaks {
 
 	/*
 	 * <<< MinIO Examples End
+	 */
+
+	/*
+	 * >>> Wasabi Examples Start
+	 */
+
+	/**
+	 * This filter allows you to adjust the arguments passed to the provider's service specific SDK client.
+	 *
+	 * The service specific SDK client is created from the initial provider SDK client, and inherits most of its config.
+	 * The service specific SDK client is re-created more often than the provider SDK client for specific scenarios, so if possible
+	 * set overrides in the provider client rather than service client for a slight improvement in performance.
+	 *
+	 * @see     https://docs.aws.amazon.com/aws-sdk-php/v3/api/class-Aws.S3.S3Client.html#___construct
+	 * @see     https://wasabi-support.zendesk.com/hc/en-us/articles/360000363572-How-do-I-use-AWS-SDK-for-PHP-with-Wasabi-
+	 *
+	 * @handles `as3cf_aws_s3_client_args`
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 *
+	 * Note: A good place for changing 'signature_version', 'use_path_style_endpoint' etc. for specific bucket/object actions.
+	 * Change the "eu-central-1" region in this example to match your preferred region.
+	 */
+	function wasabi_s3_client_args( $args ) {
+		$args['endpoint']                = 'https://s3.eu-central-1.wasabisys.com';
+		$args['region']                  = 'eu-central-1';
+		$args['use_path_style_endpoint'] = true;
+
+		return $args;
+	}
+
+	/**
+	 * This filter allows you to add or remove regions for the provider.
+	 *
+	 * @handles `as3cf_aws_get_regions`
+	 *
+	 * @param array $regions
+	 *
+	 * @return array
+	 */
+	function wasabi_get_regions( $regions ) {
+		$regions = array(
+			'us-east-1'    => 'Wasabi US East 1 (N. Virginia)',
+			'us-east-2'    => 'Wasabi US East 2 (N. Virginia)',
+			'us-west-1'    => 'Wasabi US West 1 (Oregon)',
+			'eu-central-1' => 'Wasabi EU Central 1 (Amsterdam)',
+			//'ap-northeast-1' => 'Wasabi AP Northeast 1 (Tokyo)', // Restricted
+		);
+
+		return $regions;
+	}
+
+	/**
+	 * This filter allows you to change the default delivery domain for a storage provider.
+	 *
+	 * @handles `as3cf_aws_s3_domain`
+	 *
+	 * @param string $domain
+	 *
+	 * @return string
+	 */
+	function wasabi_domain( $domain ) {
+		return 'wasabisys.com';
+	}
+
+	/**
+	 * This filter allows you to change the base URL used to take you to the provider's console from WP Offload Media's settings.
+	 *
+	 * @handles `as3cf_aws_s3_console_url`
+	 *
+	 * @param string $url
+	 *
+	 * @return string
+	 */
+	function wasabi_s3_console_url( $url ) {
+		return 'https://console.wasabisys.com/#/file_manager/';
+	}
+
+	/*
+	 * <<< Wasabi Examples End
 	 */
 
 	/**
