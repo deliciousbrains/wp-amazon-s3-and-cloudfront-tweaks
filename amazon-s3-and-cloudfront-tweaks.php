@@ -424,11 +424,19 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 */
 	function wasabi_get_regions( $regions ) {
 		$regions = array(
-			'us-east-1'    => 'Wasabi US East 1 (N. Virginia)',
-			'us-east-2'    => 'Wasabi US East 2 (N. Virginia)',
-			'us-west-1'    => 'Wasabi US West 1 (Oregon)',
-			'eu-central-1' => 'Wasabi EU Central 1 (Amsterdam)',
-			//'ap-northeast-1' => 'Wasabi AP Northeast 1 (Tokyo)', // Restricted
+			'ap-northeast-1' => 'Wasabi AP Northeast 1 (Tokyo)',
+			'ap-northeast-2' => 'Wasabi AP Northeast 2 (Osaka)',
+			'ap-southeast-1' => 'Wasabi AP Southeast 1 (Singapore)',
+			'ap-southeast-2' => 'Wasabi AP Southeast 2 (Sydney)',
+			'ca-central-1'   => 'Wasabi CA Central 1 (Toronto)',
+			'eu-central-1'   => 'Wasabi EU Central 1 (Amsterdam)',
+			'eu-central-2'   => 'Wasabi EU Central 2 (Frankfurt)',
+			'eu-west-1'      => 'Wasabi EU West 1 (London)',
+			'eu-west-2'      => 'Wasabi EU West 2 (Paris)',
+			'us-west-1'      => 'Wasabi US West 1 (Oregon)',
+			'us-central-1'   => 'Wasabi US Central 1 (Texas)',
+			'us-east-1'      => 'Wasabi US East 1 (N. Virginia)',
+			'us-east-2'      => 'Wasabi US East 2 (N. Virginia)',
 		);
 
 		return $regions;
