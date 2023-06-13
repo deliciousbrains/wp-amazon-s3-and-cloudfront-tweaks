@@ -4,7 +4,7 @@ Plugin Name: WP Offload Media Tweaks
 Plugin URI: http://github.com/deliciousbrains/wp-amazon-s3-and-cloudfront-tweaks
 Description: Examples of using WP Offload Media's filters
 Author: Delicious Brains
-Version: 0.4.1
+Version: 0.5.0
 Author URI: http://deliciousbrains.com
 Network: True
 */
@@ -20,6 +20,9 @@ Network: True
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // **********************************************************************
 
+use DeliciousBrains\WP_Offload_Media\Items\Item;
+use DeliciousBrains\WP_Offload_Media\Items\Media_Library_Item;
+
 class Amazon_S3_and_CloudFront_Tweaks {
 
 	/**
@@ -28,7 +31,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * Please only uncomment the statements you need after making sure their respective functions are correctly
 	 * updated for your needs.
 	 */
-	function __construct() {
+	public function __construct() {
 		/*
 		 * WP Offload Media & WP Offload Media Lite
 		 *
@@ -97,13 +100,19 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_pre_upload_attachment', array( $this, 'pre_upload_attachment' ), 10, 3 );
 		//add_filter( 'as3cf_legacy_ms_subsite_prefix', array( $this, 'legacy_ms_subsite_prefix' ), 10, 2 );
 		//add_filter( 'as3cf_get_object_version_string', array( $this, 'get_object_version_string' ), 10, 1 );
-		//add_filter( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
-		//add_filter( 'as3cf_upload_acl_sizes', array( $this, 'upload_acl_sizes' ), 10, 4 );
+		//add_filter( 'as3cf_upload_object_key_as_private', array( $this, 'upload_object_key_as_private' ), 10, 3 );
+		//add_filter( 'as3cf_upload_object_key_as_private', array( $this, 'upload_every_object_key_as_private' ) );
 		//add_filter( 'as3cf_gzip_mime_types', array( $this, 'gzip_mime_types' ), 10, 2 );
 		//add_filter( 'as3cf_object_meta', array( $this, 'object_meta' ), 10, 4 );
 		//add_filter( 'as3cf_attachment_file_paths', array( $this, 'attachment_file_paths' ), 10, 3 );
 		//add_filter( 'as3cf_upload_attachment_local_files_to_remove', array( $this, 'upload_attachment_local_files_to_remove' ), 10, 3 );
 		//add_filter( 'as3cf_preserve_file_from_local_removal', array( $this, 'preserve_file_from_local_removal' ), 10, 2 );
+
+		/*
+		 * Legacy storage related filters.
+		 */
+		//add_filter( 'as3cf_upload_acl', array( $this, 'upload_acl' ), 10, 3 );
+		//add_filter( 'as3cf_upload_acl_sizes', array( $this, 'upload_acl_sizes' ), 10, 4 );
 
 		/*
 		 * URL Rewrite related filters.
@@ -131,9 +140,9 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_tool_remove_local_files_batch_size', array( $this, 'tool_remove_local_files_batch_size' ) );
 
 		/*
-		 * WP Offload Media - Assets Pull Addon
+		 * WP Offload Media - Assets Pull
 		 *
-		 * https://deliciousbrains.com/wp-offload-media/doc/assets-pull-addon/
+		 * https://deliciousbrains.com/wp-offload-media/doc/assets-quick-start-guide/
 		 */
 		//add_filter( 'as3cf_assets_pull_test_endpoint_sslverify', array( $this, 'assets_pull_test_endpoint_sslverify' ), 10, 2 );
 
@@ -150,7 +159,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return int
 	 */
-	function update_as3cf_items_table_interval( $mins ) {
+	public function update_as3cf_items_table_interval( $mins ) {
 		// For faster processing, set to smallest cron interval, 1 minute.
 		return 1;
 	}
@@ -164,7 +173,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return int
 	 */
-	function update_as3cf_items_table_batch_size( $batch_size ) {
+	public function update_as3cf_items_table_batch_size( $batch_size ) {
 		// For faster processing, process up to 1,000 items per batch run.
 		return 1000;
 	}
@@ -178,7 +187,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return int
 	 */
-	function update_as3cf_items_table_time_limit( $seconds ) {
+	public function update_as3cf_items_table_time_limit( $seconds ) {
 		// Give each batch a few more seconds to run.
 		return 25;
 	}
@@ -195,7 +204,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * Note: Settings keys can be found in the Settings Constants doc.
 	 * https://deliciousbrains.com/wp-offload-media/doc/settings-constants/
 	 */
-	function get_setting_object_prefix( $value ) {
+	public function get_setting_object_prefix( $value ) {
 		return '/my/custompath/';
 	}
 
@@ -208,7 +217,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return bool
 	 */
-	function show_deprecated_domain_setting( $show ) {
+	public function show_deprecated_domain_setting( $show ) {
 		return true;
 	}
 
@@ -225,7 +234,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: A good place for changing 'endpoint', 'credentials' or 'signature_version' for all API requests.
 	 */
-	function aws_init_client_args( $args ) {
+	public function aws_init_client_args( $args ) {
 		// Example forces SDK to use the restricted 'cn-north-1' region.
 		$args['region'] = 'cn-north-1';
 
@@ -249,7 +258,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: A good place for changing 'signature_version', 'use_path_style_endpoint' etc. for specific bucket/object actions.
 	 */
-	function aws_s3_client_args( $args ) {
+	public function aws_s3_client_args( $args ) {
 		// Example forces SDK to use endpoint URLs with bucket name in path rather than domain name.
 		$args['use_path_style_endpoint'] = true;
 
@@ -278,7 +287,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: A good place for changing 'signature_version', 'use_path_style_endpoint' etc. for specific bucket/object actions.
 	 */
-	function minio_s3_client_args( $args ) {
+	public function minio_s3_client_args( $args ) {
 		// Example changes endpoint to connect to a local MinIO server configured to use port 54321 (the default MinIO port is 9000).
 		$args['endpoint'] = 'http://127.0.0.1:54321';
 
@@ -299,7 +308,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * MinIO regions, like Immortals in Highlander, there can be only one.
 	 */
-	function minio_get_regions( $regions ) {
+	public function minio_get_regions( $regions ) {
 		$regions = array(
 			'us-east-1' => 'Default',
 		);
@@ -316,11 +325,11 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * @param string $bucket
 	 * @param string $region
 	 * @param int    $expires
-	 * @param array  $args    Allows you to specify custom URL settings
+	 * @param array  $args Allows you to specify custom URL settings
 	 *
 	 * @return string
 	 */
-	function minio_s3_url_domain( $domain, $bucket, $region, $expires, $args ) {
+	public function minio_s3_url_domain( $domain, $bucket, $region, $expires, $args ) {
 		// MinIO doesn't need a region prefix, and always puts the bucket in the path.
 		return '127.0.0.1:54321/' . $bucket;
 	}
@@ -342,7 +351,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: Only enable this if you are happy with signed URLs and haven't changed the bucket's policy to "Read Only" or similar.
 	 */
-	function minio_upload_acl( $acl ) {
+	public function minio_upload_acl( $acl ) {
 		return 'private';
 	}
 
@@ -355,7 +364,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return string
 	 */
-	function minio_s3_console_url( $url ) {
+	public function minio_s3_console_url( $url ) {
 		return 'http://127.0.0.1:54321/minio/';
 	}
 
@@ -374,7 +383,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * MinIO just appends the path prefix directly after the bucket name.
 	 */
-	function minio_s3_console_url_prefix_param( $param ) {
+	public function minio_s3_console_url_prefix_param( $param ) {
 		return '/';
 	}
 
@@ -405,7 +414,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * Note: A good place for changing 'signature_version', 'use_path_style_endpoint' etc. for specific bucket/object actions.
 	 * Change the "eu-central-1" region in this example to match your preferred region.
 	 */
-	function wasabi_s3_client_args( $args ) {
+	public function wasabi_s3_client_args( $args ) {
 		$args['endpoint']                = 'https://s3.eu-central-1.wasabisys.com';
 		$args['region']                  = 'eu-central-1';
 		$args['use_path_style_endpoint'] = true;
@@ -422,7 +431,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return array
 	 */
-	function wasabi_get_regions( $regions ) {
+	public function wasabi_get_regions( $regions ) {
 		$regions = array(
 			'ap-northeast-1' => 'Wasabi AP Northeast 1 (Tokyo)',
 			'ap-northeast-2' => 'Wasabi AP Northeast 2 (Osaka)',
@@ -451,7 +460,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return string
 	 */
-	function wasabi_domain( $domain ) {
+	public function wasabi_domain( $domain ) {
 		return 'wasabisys.com';
 	}
 
@@ -464,12 +473,16 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return string
 	 */
-	function wasabi_s3_console_url( $url ) {
+	public function wasabi_s3_console_url( $url ) {
 		return 'https://console.wasabisys.com/#/file_manager/';
 	}
 
 	/*
 	 * <<< Wasabi Examples End
+	 */
+
+	/*
+	 * Storage related filters.
 	 */
 
 	/**
@@ -483,7 +496,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return array
 	 */
-	function allowed_mime_types( $types ) {
+	public function allowed_mime_types( $types ) {
 		// Disallow offload of PDFs.
 		unset( $types['pdf'] );
 
@@ -508,7 +521,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * Note: Filter fires when attachment uploaded to Media Library, edited or metadata otherwise
 	 * updated by some process.
 	 */
-	function pre_update_attachment_metadata( $abort, $data, $post_id, $old_as3cf_item ) {
+	public function pre_update_attachment_metadata( $abort, $data, $post_id, $old_as3cf_item ) {
 		// Example stops movie files from being offloaded when added to library or metadata updated.
 		$file      = get_post_meta( $post_id, '_wp_attached_file', true );
 		$extension = is_string( $file ) ? pathinfo( $file, PATHINFO_EXTENSION ) : false;
@@ -533,7 +546,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * Note: Filter fires when attachment is about to be offloaded for any reason,
 	 * including using Pro's bulk offload tools.
 	 */
-	function pre_upload_attachment( $abort, $post_id, $metadata ) {
+	public function pre_upload_attachment( $abort, $post_id, $metadata ) {
 		// Example stops movie files from being offloaded.
 		$file      = get_post_meta( $post_id, '_wp_attached_file', true );
 		$extension = is_string( $file ) ? pathinfo( $file, PATHINFO_EXTENSION ) : false;
@@ -569,7 +582,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * The `$legacy_ms_prefix` should not start with "/".
 	 * The `$legacy_ms_prefix` should end with "/".
 	 */
-	function legacy_ms_subsite_prefix( $legacy_ms_prefix, $details ) {
+	public function legacy_ms_subsite_prefix( $legacy_ms_prefix, $details ) {
 		$legacy_ms_prefix = 'sites/' . $details->blog_id . '/';
 
 		return $legacy_ms_prefix;
@@ -590,7 +603,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * The `$object_version` should not start with "/".
 	 * The `$object_version` should end with "/".
 	 */
-	function get_object_version_string( $object_version ) {
+	public function get_object_version_string( $object_version ) {
 		// This appends "my-string/" to the current object version string.
 		// e.g. "235959/" becomes "235959/my-string/".
 		$object_version .= 'my-string/';
@@ -599,41 +612,41 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/**
-	 * This filter allows your to change the default Access Control List (ACL)
-	 * permission for an original file when offloaded to bucket.
+	 * This filter allows you to change the public/private status of an individual file associated
+	 * with an uploaded item before it's uploaded to the provider.
 	 *
-	 * @handles `as3cf_upload_acl`
+	 * This example makes primary file for every newly offloaded Media Library object private in the bucket.
 	 *
-	 * @param string $acl defaults to 'public-read'
-	 * @param array  $data
-	 * @param int    $post_id
+	 * @param bool   $is_private Should the object be private?
+	 * @param string $object_key A unique file identifier for a composite item, e.g. image's "size" such as full, small, medium, large.
+	 * @param Item   $as3cf_item The item being uploaded.
 	 *
-	 * @return string
+	 * @return bool
 	 */
-	function upload_acl( $acl, $data, $post_id ) {
-		return 'private';
+	public function upload_object_key_as_private( $is_private, $object_key, $as3cf_item ) {
+		if ( Media_Library_Item::source_type() !== $as3cf_item->source_type() ) {
+			return $is_private;
+		}
+
+		if ( Item::primary_object_key() === $object_key ) {
+			return true;
+		}
+
+		return $is_private;
 	}
 
 	/**
-	 * This filter allows your to change the default Access Control List (ACL)
-	 * permission for intermediate image sizes when offloaded to bucket.
+	 * This filter allows you to change the public/private status of an individual file associated
+	 * with an uploaded item before it's uploaded to the provider.
 	 *
-	 * @handles `as3cf_upload_acl_sizes`
+	 * This example makes every newly offloaded object private in the bucket.
 	 *
-	 * @param string $acl      defaults to 'public-read'
-	 * @param string $size
-	 * @param int    $post_id
-	 * @param array  $metadata attachment metadata
+	 * @param bool $is_private Should the object be private?
 	 *
-	 * @return string
+	 * @return bool
 	 */
-	function upload_acl_sizes( $acl, $size, $post_id, $metadata ) {
-		// Make only thumbnail and medium image sizes private in bucket.
-		if ( 'medium' === $size || 'thumbnail' === $size ) {
-			return 'private';
-		}
-
-		return $acl;
+	public function upload_every_object_key_as_private( $is_private ) {
+		return true;
 	}
 
 	/**
@@ -646,7 +659,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return array
 	 */
-	function gzip_mime_types( $mime_types, $media_library ) {
+	public function gzip_mime_types( $mime_types, $media_library ) {
 		// Don't GZip any offloads, keep them pristine.
 		$mime_types = array();
 
@@ -674,7 +687,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: Only fires for the "original" media file, image sizes etc. will be placed next to original in bucket.
 	 */
-	function object_meta( $args, $post_id, $image_size, $copy ) {
+	public function object_meta( $args, $post_id, $image_size, $copy ) {
 		$extension = pathinfo( $args['Key'], PATHINFO_EXTENSION );
 
 		// Example places (potentially large) movie files in a different bucket than configured.
@@ -713,7 +726,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return array
 	 */
-	function attachment_file_paths( $paths, $attachment_id, $metadata ) {
+	public function attachment_file_paths( $paths, $attachment_id, $metadata ) {
 		// Example adds some backup files created for original and all thumbnails by some plugin, if they exist.
 		foreach ( $paths as $file ) {
 			$pathinfo   = pathinfo( $file );
@@ -740,7 +753,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: Filter only fires when a media item is being (re)offloaded to bucket and "Remove Files From Server" is turned on.
 	 */
-	function upload_attachment_local_files_to_remove( $files_to_remove, $post_id, $file_path ) {
+	public function upload_attachment_local_files_to_remove( $files_to_remove, $post_id, $file_path ) {
 		// Example stops the original path/to/file.jpg from being removed from server when copying to bucket.
 		if ( 'path/to/file.jpg' === $file_path ) {
 			$files_to_remove = array_diff( $files_to_remove, array( $file_path ) );
@@ -760,7 +773,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return bool
 	 */
-	function preserve_file_from_local_removal( $preserve, $file_path ) {
+	public function preserve_file_from_local_removal( $preserve, $file_path ) {
 		// Example stops movie files from being removed from the local server.
 		$extension = pathinfo( $file_path, PATHINFO_EXTENSION );
 		if ( in_array( $extension, array( 'mp4', 'mov' ) ) ) {
@@ -769,6 +782,56 @@ class Amazon_S3_and_CloudFront_Tweaks {
 
 		return $preserve;
 	}
+
+	/*
+	 * Legacy storage related filters.
+	 */
+
+	/**
+	 * This filter allows your to change the default Access Control List (ACL)
+	 * permission for an original file when offloaded to bucket.
+	 *
+	 * @handles `as3cf_upload_acl`
+	 *
+	 * @param string $acl defaults to 'public-read'
+	 * @param array  $data
+	 * @param int    $post_id
+	 *
+	 * @return string
+	 *
+	 * Note: This is a legacy filter, please use `as3cf_upload_object_key_as_private`.
+	 */
+	public function upload_acl( $acl, $data, $post_id ) {
+		return 'private';
+	}
+
+	/**
+	 * This filter allows your to change the default Access Control List (ACL)
+	 * permission for intermediate image sizes when offloaded to bucket.
+	 *
+	 * @handles `as3cf_upload_acl_sizes`
+	 *
+	 * @param string $acl      defaults to 'public-read'
+	 * @param string $size
+	 * @param int    $post_id
+	 * @param array  $metadata attachment metadata
+	 *
+	 * @return string
+	 *
+	 * Note: This is a legacy filter, please use `as3cf_upload_object_key_as_private`.
+	 */
+	public function upload_acl_sizes( $acl, $size, $post_id, $metadata ) {
+		// Make only thumbnail and medium image sizes private in bucket.
+		if ( 'medium' === $size || 'thumbnail' === $size ) {
+			return 'private';
+		}
+
+		return $acl;
+	}
+
+	/*
+	 * URL Rewrite related filters.
+	 */
 
 	/**
 	 * This filter allows you to alter the local domains that can be filtered to bucket URLs.
@@ -791,7 +854,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * This however can be altered by domain mapping plugins or custom code as shown above.
 	 * Therefore it's a good idea to "double down" and include configured domain as well as alternates here.
 	 */
-	function local_domains( $domains ) {
+	public function local_domains( $domains ) {
 		// Example allows local URLs to be matched when site accessed as any of the 3 examples.
 		$domains[] = 'example.com';
 		$domains[] = 'example-pro.com';
@@ -819,7 +882,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return bool
 	 */
-	function use_ssl( $use_ssl ) {
+	public function use_ssl( $use_ssl ) {
 		$use_ssl = true;
 
 		return $use_ssl;
@@ -839,7 +902,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: Runs earlier than `as3cf_wp_get_attachment_url`
 	 */
-	function get_attachment_url( $url, $as3cf_item, $post_id, $expires ) {
+	public function get_attachment_url( $url, $as3cf_item, $post_id, $expires ) {
 		// Example changes domain to another CDN configured for dedicated movies bucket.
 		if ( 'my-cheaper-infrequent-access-bucket' === $as3cf_item->bucket() ) {
 			// Get current hostname in URL.
@@ -864,7 +927,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: Runs later than `as3cf_get_attachment_url`
 	 */
-	function wp_get_attachment_url( $url, $post_id ) {
+	public function wp_get_attachment_url( $url, $post_id ) {
 
 		return $url;
 	}
@@ -887,7 +950,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return bool
 	 */
-	function get_attached_file_copy_back_to_local( $copy_back_to_local, $file, $attachment_id ) {
+	public function get_attached_file_copy_back_to_local( $copy_back_to_local, $file, $attachment_id ) {
 		if ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) {
 			return $copy_back_to_local;
 		}
@@ -908,7 +971,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return int
 	 */
-	function default_expires( $expires ) {
+	public function default_expires( $expires ) {
 		return 60 * 60; // 1 hour
 	}
 
@@ -926,7 +989,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 * Note: Filter uses 'cloudfront' in name for historical reasons, can be used with any CDN that
 	 * supports the ability to use a path prefix with bucket as source.
 	 */
-	function cloudfront_path_parts( $path_parts = array(), $domain = '' ) {
+	public function cloudfront_path_parts( $path_parts = array(), $domain = '' ) {
 		// Example would allow a CDN distribution of cdn.example.com/media/ to serve files as cdn.example.com.
 		// Its important to remember that the CDN distribution must have been set up accordingly.
 		if ( 'cdn.example.com' === $domain && 1 < count( $path_parts ) && 'media' === $path_parts[0] ) {
@@ -936,9 +999,11 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		return $path_parts;
 	}
 
-	//
-	// WP Offload Media (Pro)
-	//
+	/*
+	 * WP Offload Media (Pro)
+	 *
+	 * https://deliciousbrains.com/wp-offload-media/
+	 */
 
 	/**
 	 * This filter allows you to control the default capability for using
@@ -957,7 +1022,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return string
 	 */
-	function media_actions_capability( $capability ) {
+	public function media_actions_capability( $capability ) {
 		// Example capability would allow users with an Editor role to use the
 		// on-demand actions as well.
 		return 'delete_others_posts';
@@ -972,7 +1037,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return int
 	 */
-	function seconds_between_batches( $value ) {
+	public function seconds_between_batches( $value ) {
 		// Example gives the site a second to breathe between batches in background tools.
 		return 1;
 	}
@@ -986,7 +1051,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return int
 	 */
-	function default_time_limit( $value ) {
+	public function default_time_limit( $value ) {
 		// Example increases the limit to 25 seconds.
 		return 25;
 	}
@@ -1002,7 +1067,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: No matter how many attachments are determined to need processing in batch, processes no more than 10 attachments at a time with a time limit check after each chunk is processed.
 	 */
-	function tool_uploader_batch_size( $value ) {
+	public function tool_uploader_batch_size( $value ) {
 		// Example decreases number of attachments in batch to analyse.
 		return 50;
 	}
@@ -1018,7 +1083,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: No matter how many attachments are determined to need processing in batch, processes no more than 10 attachments at a time with a time limit check after each chunk is processed.
 	 */
-	function tool_downloader_batch_size( $value ) {
+	public function tool_downloader_batch_size( $value ) {
 		// Example decreases number of attachments in batch to analyse.
 		return 50;
 	}
@@ -1034,7 +1099,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: No matter how many attachments are determined to need processing in batch, processes no more than 10 attachments at a time with a time limit check after each chunk is processed.
 	 */
-	function tool_downloader_and_remover_batch_size( $value ) {
+	public function tool_downloader_and_remover_batch_size( $value ) {
 		// Example decreases number of attachments in batch to analyse.
 		return 50;
 	}
@@ -1050,7 +1115,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: No matter how many attachments are determined to need processing in batch, processes no more than 10 attachments at a time with a time limit check after each chunk is processed.
 	 */
-	function tool_copy_buckets_batch_size( $value ) {
+	public function tool_copy_buckets_batch_size( $value ) {
 		// Example decreases number of attachments in batch to analyse.
 		return 50;
 	}
@@ -1066,15 +1131,17 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * Note: No matter how many attachments are determined to need processing in batch, processes no more than 10 attachments at a time with a time limit check after each chunk is processed.
 	 */
-	function tool_remove_local_files_batch_size( $value ) {
+	public function tool_remove_local_files_batch_size( $value ) {
 		// Example decreases number of attachments in batch to analyse.
 		return 50;
 	}
 
 
-	//
-	// Assets Pull Addon Examples
-	//
+	/*
+	 * WP Offload Media - Assets Pull
+	 *
+	 * https://deliciousbrains.com/wp-offload-media/doc/assets-quick-start-guide/
+	 */
 
 	/**
 	 * By default HTTPS certificates are verified during Assets Pull's domain check,
@@ -1087,7 +1154,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	 *
 	 * @return bool
 	 */
-	function assets_pull_test_endpoint_sslverify( $verify, $domain ) {
+	public function assets_pull_test_endpoint_sslverify( $verify, $domain ) {
 		return false;
 	}
 }
