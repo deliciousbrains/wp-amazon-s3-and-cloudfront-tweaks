@@ -93,6 +93,30 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_aws_s3_console_url', array( $this, 'wasabi_s3_console_url' ) );
 
 		/*
+		 * Custom S3 API Example: Vultr Object Storage
+		 * @see https://vultr.com/
+		 *
+		 * NOTE: Select "DigitalOcean" storage provider in UI,
+		 * or use "do" provider in AS3CF_SETTINGS define,
+		 * as this example requires that due to how Vultr uses
+		 * region specific endpoints, and does not support
+		 * Block All Public Access or Object Ownership,
+		 * just like DigitalOcean.
+		 * Please use WP Offload Media 3.2.6 or later to avoid
+		 * getting a "403 Unauthorized" error in the delivery
+		 * settings validation due to Vultr's hot-link protection.
+		 */
+		/* >>> REMOVE THIS COMMENT START LINE AND THE BELOW COMMENT END LINE TO ENABLE Vultr. >>>
+		add_filter( 'as3cf_do_get_regions', array( $this, 'vultr_get_regions' ) );
+		//add_filter( 'as3cf_do_spaces_bucket_in_path', '__return_true' ); // Optional
+		add_filter( 'as3cf_do_spaces_domain', array( $this, 'vultr_domain' ) );
+		// Update subscription_id in vultr_console_url function.
+		add_filter( 'as3cf_do_spaces_console_url', array( $this, 'vultr_console_url' ) );
+		add_filter( 'as3cf_do_spaces_console_url_prefix_param', array( $this, 'vultr_console_url_prefix_param' ) );
+		add_filter( 'as3cf_do_spaces_console_url_suffix_param', array( $this, 'vultr_console_url_suffix_param' ) );
+		<<< REMOVE THIS COMMENT END LINE AND THE ABOVE COMMENT START LINE TO ENABLE Vultr. <<< */
+
+		/*
 		 * Storage related filters.
 		 */
 		//add_filter( 'as3cf_allowed_mime_types', array( $this, 'allowed_mime_types' ), 10, 1 );
@@ -478,7 +502,101 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/*
-	 * <<< Wasabi Examples End
+	 * <<< Vultr Examples End
+	 */
+
+	/*
+	 * >>> Vultr Examples Start
+	 *
+	 * NOTE: Use DigitalOcean as provider, see note in __construct.
+	 */
+
+	/**
+	 * This filter allows you to add or remove regions for the provider.
+	 *
+	 * @handles `as3cf_do_get_regions`
+	 *
+	 * @param array $regions
+	 *
+	 * @return array
+	 */
+	public function vultr_get_regions( $regions ) {
+		$regions = array(
+			'ams1' => 'Amsterdam',
+			'blr1' => 'Bangalore',
+			'del1' => 'New Delhi',
+			'ewr1' => 'New Jersey',
+			'sjc1' => 'Silicon Valley',
+			'sgp1' => 'Singapore',
+		);
+
+		return $regions;
+	}
+
+	/**
+	 * This filter allows you to change the default delivery domain for a storage provider.
+	 *
+	 * @handles `as3cf_do_spaces_domain`
+	 *
+	 * @param string $domain
+	 *
+	 * @return string
+	 */
+	public function vultr_domain( $domain ) {
+		return 'vultrobjects.com';
+	}
+
+	/**
+	 * This filter allows you to change the base URL used to take you to the
+	 * provider's console from WP Offload Media's settings.
+	 *
+	 * @handles `as3cf_do_spaces_console_url`
+	 *
+	 * @param string $url
+	 *
+	 * @return string
+	 */
+	public function vultr_console_url( $url ) {
+		// Add your subscription id here, as seen in Vultr console's URL as "id".
+		$subscription_id = '12345678-90ab-cdef-1234-567890abcdef';
+
+		return 'https://my.vultr.com/objectstorage/subs/detail/?id=' . $subscription_id . '&';
+	}
+
+	/**
+	 * The "prefix param" denotes what should be in the console URL before the path prefix value.
+	 *
+	 * For example, the default for DigitalOcean/Spaces is "?path=".
+	 *
+	 * The prefix is usually added to the console URL just after the bucket name.
+	 *
+	 * @handles `as3cf_do_spaces_console_url_prefix_param`
+	 *
+	 * @param string $param
+	 *
+	 * @return string
+	 */
+	public function vultr_console_url_prefix_param( $param ) {
+		return '=';
+	}
+
+	/**
+	 * The "suffix param" denotes what should be in the console URL after the path prefix value.
+	 *
+	 * The suffix is usually added to the console URL just after the bucket name and path prefix.
+	 *
+	 * @handles `as3cf_do_spaces_console_url_suffix_param`
+	 *
+	 * @param string $param
+	 *
+	 * @return string
+	 */
+	public function vultr_console_url_suffix_param( $param ) {
+		return '#buckets';
+	}
+
+	/*
+	 * <<< Vultr Examples End
 	 */
 
 	/*
