@@ -502,7 +502,7 @@ class Amazon_S3_and_CloudFront_Tweaks {
 	}
 
 	/*
-	 * <<< Vultr Examples End
+	 * <<< Wasabi Examples End
 	 */
 
 	/*
