@@ -4,7 +4,7 @@ Plugin Name: WP Offload Media Tweaks
 Plugin URI: http://github.com/deliciousbrains/wp-amazon-s3-and-cloudfront-tweaks
 Description: Examples of using WP Offload Media's filters
 Author: Delicious Brains
-Version: 0.5.0
+Version: 0.6.0
 Author URI: http://deliciousbrains.com
 Network: True
 */
