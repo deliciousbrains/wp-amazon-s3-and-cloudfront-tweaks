@@ -71,6 +71,13 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		//add_filter( 'as3cf_aws_s3_client_args', array( $this, 'aws_s3_client_args' ), 10, 1 );
 
 		/*
+		 * Custom S3 API Example: DreamObjects
+		 * @see https://help.dreamhost.com/hc/en-us/articles/217590537-How-To-Use-DreamObjects-S3-compatible-API
+		 */
+		//add_filter( 'as3cf_aws_s3_client_args', array( $this, 'dreamobjects_s3_client_args' ) );
+	        //add_filter( 'as3cf_aws_s3_url_domain', array( $this, 'dreamobjects_s3_url_domain' ), 10, 5 );
+
+		/*
 		 * Custom S3 API Example: MinIO
 		 * @see https://min.io/
 		 */
@@ -263,6 +270,53 @@ class Amazon_S3_and_CloudFront_Tweaks {
 		$args['use_path_style_endpoint'] = true;
 
 		return $args;
+	}
+
+	/*
+	 * >>> DreamObjects Examples Start
+  	 */
+
+	/**
+	 * This filter allows you to adjust the arguments passed to the provider's service specific SDK client.
+	 *
+	 * The service specific SDK client is created from the initial provider SDK client, and inherits most of its config.
+	 * The service specific SDK client is re-created more often than the provider SDK client for specific scenarios, so if possible
+	 * set overrides in the provider client rather than service client for a slight improvement in performance.
+	 *
+	 * @see     https://docs.aws.amazon.com/aws-sdk-php/v3/api/class-Aws.S3.S3Client.html#___construct
+	 * @see     https://help.dreamhost.com/hc/en-us/articles/217590537-How-To-Use-DreamObjects-S3-compatible-API
+	 *
+	 * @handles `as3cf_aws_s3_client_args`
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 *
+	 * Note: A good place for changing 'signature_version', 'use_path_style_endpoint' etc. for specific bucket/object actions.
+	 */
+	public function dreamobjects_s3_client_args( $args ) {
+		$args['endpoint']                = 'http://objects-us-east-1.dream.io';
+		$args['region']                  = 'objects-us-east-1';
+		$args['use_path_style_endpoint'] = true;
+		return $args;
+	}
+	
+	/**
+	 * This filter allows you to change the URL used for serving the files.
+	 *
+	 * @handles `as3cf_aws_s3_url_domain`
+	 *
+	 * @param string $domain
+	 * @param string $bucket
+	 * @param string $region
+	 * @param int    $expires
+	 * @param array  $args Allows you to specify custom URL settings
+	 *
+	 * @return string
+	 */
+	public function dreamobjects_s3_url_domain( $domain, $bucket, $region, $expires, $args ) {
+		// DreamObjects prefers non-prefixed with bucket in the path.
+		return 'objects-us-east-1.dream.io/' . $bucket;
 	}
 
 	/*
