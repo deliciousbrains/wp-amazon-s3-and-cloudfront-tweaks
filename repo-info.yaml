@@ -1,0 +1,17 @@
+# Save as repo-info.yaml at your repository root — NOT catalog-info.yaml.
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: wp-amazon-s3-and-cloudfront-tweaks
+spec:
+  owner: delicious
+  type: repository
+  engineeringExcellence:
+    # Engineering Excellence checks this repo is exempt from
+    exemptedChecks:
+      repositoryVisibilityPrivate:
+        reason: |-
+          Public repository approved by Security — see linked ticket
+          for review and decision.
+        tickets:
+        - https://wpengine.atlassian.net/servicedesk/customer/portal/1031/ASKSEC-9031
